@@ -53,6 +53,13 @@ class Cjdroute(object):
             for func, opts in page['availableFunctions'].items():
                 self.funcs[func] = opts
 
+    def lookup(self, ip=None):
+        q = dict(q='NodeStore_nodeForAddr')
+        if ip:
+            q['ip'] = ip
+        self.send(**q)
+        return self.recv()
+
     def getPeers(self):
         for page in self.poll(q='InterfaceController_peerStats'):
             for i, args in page.items():
