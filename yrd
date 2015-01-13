@@ -48,6 +48,8 @@ def peers_show():
 
         print(line)
 
+    c.disconnect()
+
 
 @named('auth')
 def peers_auth():

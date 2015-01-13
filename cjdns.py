@@ -18,6 +18,9 @@ class Cjdroute(object):
 
         self.registerFunctions()
 
+    def disconnect(self):
+        self.s.close()
+
     def recv(self):
         return bdecode(self.s.recv(BUFFER_SIZE))
 
