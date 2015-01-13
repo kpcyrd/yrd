@@ -1,0 +1,57 @@
+#!/usr/bin/env python
+from argh import *
+import cjdns
+
+
+def addr():
+    'show infos about your node'
+    pass
+
+
+def ping():
+    'ping a node'
+    pass
+
+
+def traceroute():
+    'traceroute a node'
+    pass
+
+
+@arg('--follow', help='show new nodes while they\'re discovered')
+def ns(follow=False):
+    'access the nodestore'
+    pass
+
+
+@named('show')
+def peers_show():
+    'show your peers'
+    pass
+
+
+@named('auth')
+def peers_auth():
+    'add a password for inbound connections'
+    pass
+
+
+@named('add')
+def peers_add():
+    'add an outbound connection'
+    pass
+
+
+@named('remove')
+def peers_remove():
+    'unpeer a node'
+    pass
+
+
+parser = ArghParser()
+parser.add_commands([addr, ping, traceroute, ns])
+parser.add_commands([peers_show, peers_auth, peers_add, peers_remove],
+                    namespace='peers', title='ctrl peers')
+
+if __name__ == '__main__':
+    dispatch(parser)
