@@ -3,6 +3,11 @@ from argh import *
 import cjdns
 
 
+def install():
+    'install yrd and cjdns on your box'
+    pass
+
+
 def addr():
     'show infos about your node'
     pass
@@ -49,7 +54,7 @@ def peers_remove():
 
 
 parser = ArghParser()
-parser.add_commands([addr, ping, traceroute, ns])
+parser.add_commands([install, addr, ping, traceroute, ns])
 parser.add_commands([peers_show, peers_auth, peers_add, peers_remove],
                     namespace='peers', title='ctrl peers')
 

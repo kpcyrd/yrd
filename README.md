@@ -3,6 +3,13 @@ yrd
 
 cjdns for humans and cyborgs
 
+How to install cjdns with yrd
+-----------------------------
+
+    git clone https://github.com/kpcyrd/yrd.git
+    cd yrd
+    ./yrd install
+
 How to pronounce this
 ---------------------
 
