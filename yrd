@@ -32,7 +32,21 @@ def ns(follow=False):
 @named('show')
 def peers_show():
     'show your peers'
-    pass
+    c = cjdns.connect()
+    STAT_FORMAT = '%s\t%s\tv%d\tin %d\tout %d\t%s\tdup %d los %d oor %d'
+
+    for peer in c.getPeers():
+        setattr(peer, 'version', 1337)
+
+        line = STAT_FORMAT % (peer.ip, peer.switchLabel, peer.version,
+                              peer.bytesIn, peer.bytesOut, peer.state,
+                              peer.duplicates, peer.lostPackets,
+                              peer.receivedOutOfRange)
+
+        if hasattr(peer, 'user'):
+            line += ' %r' % peer.user
+
+        print(line)
 
 
 @named('auth')
