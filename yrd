@@ -44,7 +44,8 @@ def peers_show():
     STAT_FORMAT = '%s\t%s\tv%d\tin %d\tout %d\t%s\tdup %d los %d oor %d'
 
     for peer in c.getPeers():
-        setattr(peer, 'version', 1337)
+        version = c.lookup(peer.ip)['result']['protocolVersion']
+        setattr(peer, 'version', version)
 
         line = STAT_FORMAT % (peer.ip, peer.switchLabel, peer.version,
                               peer.bytesIn, peer.bytesOut, peer.state,
