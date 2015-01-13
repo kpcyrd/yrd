@@ -53,10 +53,24 @@ def peers_remove():
     pass
 
 
+@named('find')
+def auto_find():
+    'find public peers'
+    pass
+
+
+@named('announce')
+def auto_announce():
+    'announce as public peer'
+    pass
+
+
 parser = ArghParser()
 parser.add_commands([install, addr, ping, traceroute, ns])
 parser.add_commands([peers_show, peers_auth, peers_add, peers_remove],
                     namespace='peers', title='ctrl peers')
+parser.add_commands([auto_find, auto_announce],
+                    namespace='auto', title='ctrl auto-peering')
 
 if __name__ == '__main__':
     dispatch(parser)
