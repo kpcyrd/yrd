@@ -60,6 +60,16 @@ class Cjdroute(object):
         self.send(**q)
         return self.recv()
 
+    def genericPing(self, q, path, timeout=5000):
+        self.send(q=q, args={'path': path, 'timeout': 5000})
+        return self.recv()
+
+    def routerPing(self, *args, **kwargs):
+        return self.genericPing('RouterModule_pingNode', *args, **kwargs)
+
+    def switchPing(self, *args, **kwargs):
+        return self.genericPing('SwitchPinger_ping', *args, **kwargs)
+
     def getPeers(self):
         for page in self.poll(q='InterfaceController_peerStats'):
             for i, args in page.items():
