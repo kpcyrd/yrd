@@ -1,14 +1,66 @@
 #!/usr/bin/env python
+from subprocess import call
 from argh import *
 import itertools
 import cjdns
 import time
 import dht
+import os
+
+CJDNS_GIT_REPO = 'https://github.com/cjdelisle/cjdns.git'
+CJDNS_CLONE_DIR = '/opt/cjdns'
+
+YRD_GIT_REPO = 'https://github.com/kpcyrd/yrd.git'
+YRD_CLONE_DIR = '/opt/yrd'
 
 
 def install():
     'install yrd and cjdns on your box'
-    pass
+
+    yield '[*] checking permissions'
+    if os.geteuid():
+        yield '[-] you need to be root'
+        return
+
+    yield '[*] checking if git is there'
+    if call(['which', 'git']):
+        yield '[-] please install git'
+        return
+
+    yield '[*] checking if cjdroute is there'
+    if call(['which', 'cjdroute']):
+        yield '[/] not found, continuing'
+
+        yield '[*] cloning cjdns'
+        if call(['git', 'clone', CJDNS_GIT_REPO, CJDNS_CLONE_DIR]):
+            yield '[-] clone failed'
+            return
+
+        yield '[*] compiling cjdns'
+        if call(['sh', '-c', 'cd "%s" && ./do' % CJDNS_CLONE_DIR]):
+            yield '[-] compile failed'
+
+        yield '[*] creating symlink'
+        os.symlink(os.path.join(CJDNS_CLONE_DIR, 'cjdroute'),
+                   '/usr/bin/cjdroute')
+    else:
+        yield '[+] already installed, skipping'
+
+    yield '[*] checking if yrd is in your path'
+    if call(['which', 'yrd']):
+        yield '[/] not in your path, doing a proper install from scratch'
+        yield '[*] cloning yrd'
+        if call(['git', 'clone', YRD_GIT_REPO, YRD_CLONE_DIR]):
+            yield '[-] clone failed'
+            return
+
+        yield '[*] creating symlink'
+        os.symlink(os.path.join(YRD_CLONE_DIR, 'yrd'),
+                   '/usr/bin/yrd')
+    else:
+        yield '[+] already installed, skipping'
+
+    yield '[+] installation complete'
 
 
 def addr():
