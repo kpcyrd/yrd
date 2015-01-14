@@ -2,6 +2,7 @@
 from argh import *
 import cjdns
 import time
+import dht
 
 
 def install():
@@ -104,15 +105,15 @@ def peers_remove():
     pass
 
 
-@named('find')
-def auto_find():
-    'find public peers'
+@named('peer')
+def dht_peer():
+    'connect to public peers'
     pass
 
 
 @named('announce')
-def auto_announce():
-    'announce as public peer'
+def dht_announce():
+    'announce yourself as public peer'
     pass
 
 
@@ -120,8 +121,8 @@ parser = ArghParser()
 parser.add_commands([install, addr, ping, traceroute, ns])
 parser.add_commands([peers_show, peers_auth, peers_add, peers_remove],
                     namespace='peers', title='ctrl peers')
-parser.add_commands([auto_find, auto_announce],
-                    namespace='auto', title='ctrl auto-peering')
+parser.add_commands([dht_peer, dht_announce],
+                    namespace='dht', title='ctrl inet auto-peering')
 
 if __name__ == '__main__':
     dispatch(parser)
