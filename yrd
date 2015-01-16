@@ -3,6 +3,7 @@ from subprocess import call
 from argh import *
 import itertools
 import cjdns
+import json
 import time
 import dht
 import os
@@ -12,6 +13,9 @@ CJDNS_CLONE_DIR = '/opt/cjdns'
 
 YRD_GIT_REPO = 'https://github.com/kpcyrd/yrd.git'
 YRD_CLONE_DIR = '/opt/yrd'
+YRD_FOLDER = '/var/lib/yrd'
+YRD_PEERS = '/var/lib/yrd/peers.d'
+CJDROUTE_CONF = '/var/lib/yrd/cjdroute.conf'
 
 
 def install():
@@ -59,6 +63,12 @@ def install():
                    '/usr/bin/yrd')
     else:
         yield '[+] already installed, skipping'
+
+    yield '[*] checking folders for internal files'
+    for folder in [YRD_FOLDER, YRD_PEERS]:
+        if not os.path.exists(folder):
+            yield '[*] creating ' + folder
+            os.mkdir(folder, 0700)
 
     yield '[+] installation complete'
 
@@ -112,9 +122,9 @@ def ns(follow=False):
     pass
 
 
-@named('show')
-def peers_show():
-    'show your peers'
+@aliases('neighbours')
+def n():
+    'shows your neighbours'
     c = cjdns.connect()
     STAT_FORMAT = '%s\t%s\tv%d\tin %d\tout %d\t%s\tdup %d los %d oor %d'
 
@@ -135,20 +145,71 @@ def peers_show():
     c.disconnect()
 
 
+def generate_key(length):
+    key = ''
+    with open('/dev/urandom') as f:
+        while len(key) < length:
+            x = f.read(1)
+            if x.isalnum():
+                key += x
+    return key
+
+
+def get_ip():
+    import socket
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(('1.2.3.4', 0))
+    return s.getsockname()[0]
+
+
 @named('auth')
-def peers_auth():
+def peer_auth(name):
     'add a password for inbound connections'
-    pass
+
+    if '/' in name:
+        yield 'nope'
+        exit(1)
+
+    path = os.path.join(YRD_PEERS, name)
+    if os.path.exists(path):
+        with open(path) as f:
+            password = json.load(f)['password']
+    else:
+        password = generate_key(31)
+
+        info = {
+            'type': 'in',
+            'name': name,
+            'password': password
+        }
+
+        with open(path, 'w') as f:
+            f.write(json.dumps(info))
+
+    with open(CJDROUTE_CONF) as f:
+        conf = json.load(f)
+
+    publicKey = conf['publicKey']
+    port = conf['interfaces']['UDPInterface'][0]['bind'].split(':')[1]
+
+    cred = {
+        get_ip() + ':' + port: {
+            'password': password,
+            'publicKey': publicKey
+        }
+    }
+
+    print(json.dumps(cred)[1:-1])
 
 
 @named('add')
-def peers_add():
+def peer_add():
     'add an outbound connection'
     pass
 
 
 @named('remove')
-def peers_remove():
+def peer_remove():
     'unpeer a node'
     pass
 
@@ -166,9 +227,9 @@ def dht_announce():
 
 
 parser = ArghParser()
-parser.add_commands([install, addr, ping, traceroute, ns])
-parser.add_commands([peers_show, peers_auth, peers_add, peers_remove],
-                    namespace='peers', title='ctrl peers')
+parser.add_commands([install, addr, n, ping, traceroute, ns])
+parser.add_commands([peer_auth, peer_add, peer_remove],
+                    namespace='peer', title='ctrl peers')
 parser.add_commands([dht_peer, dht_announce],
                     namespace='dht', title='ctrl inet auto-peering')
 
