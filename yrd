@@ -189,6 +189,10 @@ def peer_auth(name):
     with open(CJDROUTE_CONF) as f:
         conf = json.load(f)
 
+    c = cjdns.connect(password=conf['admin']['password'])
+    c.addPassword(name, password)
+    c.disconnect()
+
     publicKey = conf['publicKey']
     port = conf['interfaces']['UDPInterface'][0]['bind'].split(':')[1]
 

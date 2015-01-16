@@ -1,5 +1,5 @@
 from bencode import bencode, bdecode
-from hashlib import sha512
+from hashlib import sha512, sha256
 import socket
 
 BUFFER_SIZE = 69632
@@ -7,7 +7,7 @@ BUFFER_SIZE = 69632
 
 class Cjdroute(object):
     def __init__(self, ip='127.0.0.1', port=11234, password=''):
-        self.funcs = {}
+        self.password = password
 
         self.s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.s.connect((ip, port))
@@ -16,16 +16,28 @@ class Cjdroute(object):
         if not self.ping():
             raise Exception('Not a cjdns socket? (%s:%d)' % (ip, port))
 
-        self.registerFunctions()
-
     def disconnect(self):
         self.s.close()
 
     def recv(self):
         return bdecode(self.s.recv(BUFFER_SIZE))
 
-    def send(self, **kwargs):
+    def _send(self, **kwargs):
         self.s.send(bencode(kwargs))
+
+    def send(self, **kwargs):
+        if self.password:
+            self._send(q='cookie')
+            cookie = self.recv()['cookie']
+
+            kwargs['hash'] = sha256(self.password + cookie).hexdigest()
+            kwargs['cookie'] = cookie
+
+            kwargs['aq'] = kwargs['q']
+            kwargs['q'] = 'auth'
+            kwargs['hash'] = sha256(bencode(kwargs)).hexdigest()
+
+        self._send(**kwargs)
 
     def poll(self, **kwargs):
         if 'args' not in kwargs:
@@ -48,11 +60,6 @@ class Cjdroute(object):
         resp = self.recv()
         return 'q' in resp and resp['q'] == 'pong'
 
-    def registerFunctions(self):
-        for page in self.poll(q='Admin_availableFunctions'):
-            for func, opts in page['availableFunctions'].items():
-                self.funcs[func] = opts
-
     def lookup(self, ip=None):
         q = dict(q='NodeStore_nodeForAddr')
         if ip:
@@ -69,6 +76,11 @@ class Cjdroute(object):
 
     def switchPing(self, *args, **kwargs):
         return self.genericPing('SwitchPinger_ping', *args, **kwargs)
+
+    def addPassword(self, name, password):
+        print(repr((name, password)))
+        self.send(q='AuthorizedPasswords_add',
+                  args={'user': name, 'password': str(password)})
 
     def getPeers(self):
         for page in self.poll(q='InterfaceController_peerStats'):
