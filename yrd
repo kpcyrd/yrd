@@ -12,6 +12,7 @@ CJDNS_CLONE_DIR = '/opt/cjdns'
 
 YRD_GIT_REPO = 'https://github.com/kpcyrd/yrd.git'
 YRD_CLONE_DIR = '/opt/yrd'
+YRD_FOLDER = '/var/lib/yrd'
 
 
 def install():
@@ -59,6 +60,11 @@ def install():
                    '/usr/bin/yrd')
     else:
         yield '[+] already installed, skipping'
+
+    yield '[*] checking folder for internal files'
+    if not os.path.exists(YRD_FOLDER):
+        yield '[*] creating ' + YRD_FOLDER
+        os.mkdir(YRD_FOLDER, 0700)
 
     yield '[+] installation complete'
 
