@@ -64,10 +64,11 @@ def install():
     else:
         yield '[+] already installed, skipping'
 
-    yield '[*] checking folder for internal files'
-    if not os.path.exists(YRD_FOLDER):
-        yield '[*] creating ' + YRD_FOLDER
-        os.mkdir(YRD_FOLDER, 0700)
+    yield '[*] checking folders for internal files'
+    for folder in [YRD_FOLDER, YRD_PEERS]:
+        if not os.path.exists(folder):
+            yield '[*] creating ' + folder
+            os.mkdir(folder, 0700)
 
     yield '[+] installation complete'
 
