@@ -3,6 +3,7 @@ from subprocess import call
 from argh import *
 import itertools
 import cjdns
+import json
 import time
 import dht
 import os
@@ -13,6 +14,8 @@ CJDNS_CLONE_DIR = '/opt/cjdns'
 YRD_GIT_REPO = 'https://github.com/kpcyrd/yrd.git'
 YRD_CLONE_DIR = '/opt/yrd'
 YRD_FOLDER = '/var/lib/yrd'
+YRD_PEERS = '/var/lib/yrd/peers.d'
+CJDROUTE_CONF = '/var/lib/yrd/cjdroute.conf'
 
 
 def install():
@@ -141,10 +144,61 @@ def n():
     c.disconnect()
 
 
+def generate_key(length):
+    key = ''
+    with open('/dev/urandom') as f:
+        while len(key) < length:
+            x = f.read(1)
+            if x.isalnum():
+                key += x
+    return key
+
+
+def get_ip():
+    import socket
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(('1.2.3.4', 0))
+    return s.getsockname()[0]
+
+
 @named('auth')
-def peer_auth():
+def peer_auth(name):
     'add a password for inbound connections'
-    pass
+
+    if '/' in name:
+        yield 'nope'
+        exit(1)
+
+    path = os.path.join(YRD_PEERS, name)
+    if os.path.exists(path):
+        with open(path) as f:
+            password = json.load(f)['password']
+    else:
+        password = generate_key(31)
+
+        info = {
+            'type': 'in',
+            'name': name,
+            'password': password
+        }
+
+        with open(path, 'w') as f:
+            f.write(json.dumps(info))
+
+    with open(CJDROUTE_CONF) as f:
+        conf = json.load(f)
+
+    publicKey = conf['publicKey']
+    port = conf['interfaces']['UDPInterface'][0]['bind'].split(':')[1]
+
+    cred = {
+        get_ip() + ':' + port: {
+            'password': password,
+            'publicKey': publicKey
+        }
+    }
+
+    print(json.dumps(cred)[1:-1])
 
 
 @named('add')
