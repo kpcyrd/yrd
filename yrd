@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from subprocess import call
+from subprocess import call, Popen, PIPE
 from argh import *
 import itertools
 import cjdns
@@ -71,6 +71,17 @@ def install():
             os.mkdir(folder, 0700)
 
     yield '[+] installation complete'
+
+
+@wrap_errors([KeyboardInterrupt])
+def start():
+    with open(CJDROUTE_CONF) as f:
+        conf = f.read()
+
+    p = Popen(['cjdroute'], stdin=PIPE)
+    p.communicate(conf)
+
+    # add peers
 
 
 def addr():
@@ -231,7 +242,7 @@ def dht_announce():
 
 
 parser = ArghParser()
-parser.add_commands([install, addr, n, ping, traceroute, ns])
+parser.add_commands([install, start, addr, n, ping, traceroute, ns])
 parser.add_commands([peer_auth, peer_add, peer_remove],
                     namespace='peer', title='ctrl peers')
 parser.add_commands([dht_peer, dht_announce],
