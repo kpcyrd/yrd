@@ -78,9 +78,8 @@ class Cjdroute(object):
         return self.genericPing('SwitchPinger_ping', *args, **kwargs)
 
     def addPassword(self, name, password):
-        print(repr((name, password)))
         self.send(q='AuthorizedPasswords_add',
-                  args={'user': name, 'password': str(password)})
+                  args={'user': str(name), 'password': str(password)})
 
     def getPeers(self):
         for page in self.poll(q='InterfaceController_peerStats'):

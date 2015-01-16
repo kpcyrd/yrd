@@ -81,7 +81,17 @@ def start():
     p = Popen(['cjdroute'], stdin=PIPE)
     p.communicate(conf)
 
-    # add peers
+    conf = json.loads(conf)
+
+    c = cjdns.connect(password=conf['admin']['password'])
+
+    for peer in os.listdir(YRD_PEERS):
+        with open(os.path.join(YRD_PEERS, peer)) as f:
+            info = json.load(f)
+            if info['type'] == 'in':
+                c.addPassword(info['name'], info['password'])
+
+    c.disconnect()
 
 
 def addr():
