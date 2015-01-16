@@ -118,9 +118,9 @@ def ns(follow=False):
     pass
 
 
-@named('show')
-def peers_show():
-    'show your peers'
+@aliases('neighbours')
+def n():
+    'shows your neighbours'
     c = cjdns.connect()
     STAT_FORMAT = '%s\t%s\tv%d\tin %d\tout %d\t%s\tdup %d los %d oor %d'
 
@@ -142,19 +142,19 @@ def peers_show():
 
 
 @named('auth')
-def peers_auth():
+def peer_auth():
     'add a password for inbound connections'
     pass
 
 
 @named('add')
-def peers_add():
+def peer_add():
     'add an outbound connection'
     pass
 
 
 @named('remove')
-def peers_remove():
+def peer_remove():
     'unpeer a node'
     pass
 
@@ -172,9 +172,9 @@ def dht_announce():
 
 
 parser = ArghParser()
-parser.add_commands([install, addr, ping, traceroute, ns])
-parser.add_commands([peers_show, peers_auth, peers_add, peers_remove],
-                    namespace='peers', title='ctrl peers')
+parser.add_commands([install, addr, n, ping, traceroute, ns])
+parser.add_commands([peer_auth, peer_add, peer_remove],
+                    namespace='peer', title='ctrl peers')
 parser.add_commands([dht_peer, dht_announce],
                     namespace='dht', title='ctrl inet auto-peering')
 
