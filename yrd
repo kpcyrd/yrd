@@ -2,6 +2,7 @@
 from subprocess import call, Popen, PIPE
 from argh import *
 import itertools
+import socket
 import cjdns
 import utils
 import json
@@ -102,6 +103,7 @@ def start():
     c.disconnect()
 
 
+@wrap_errors([socket.error])
 def addr():
     'show infos about your node'
     c = cjdns.connect()
@@ -118,7 +120,7 @@ def addr():
 @arg('ip', help='the cjdns ipv6')
 @arg('-c', '--count', metavar='count', help='stop after `count` packets')
 @arg('-s', '--switch', help='do a switch ping instead of a router ping')
-@wrap_errors([KeyboardInterrupt])
+@wrap_errors([KeyboardInterrupt, socket.error])
 def ping(ip, count=0, switch=False):
     'ping a node'
     c = cjdns.connect()
@@ -152,6 +154,7 @@ def ns(follow=False):
 
 
 @aliases('neighbours')
+@wrap_errors([socket.error])
 def n():
     'shows your neighbours'
     c = cjdns.connect()
@@ -177,6 +180,7 @@ def n():
 
 
 @named('auth')
+@wrap_errors([socket.error])
 def peer_auth(name):
     'add a password for inbound connections'
 
