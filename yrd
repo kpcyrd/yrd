@@ -200,17 +200,25 @@ def r(follow=False):
     c.disconnect()
 
 
+@arg('-n', '--neighbours', help='show neighbours peers')
 @aliases('neighbours')
 @wrap_errors([socket.error])
-def n():
+def n(neighbours=False):
     'shows your neighbours'
-    c = cjdns.connect()
+
+    if neighbours:
+        with open(CJDROUTE_CONF) as f:
+            conf = json.load(f)
+
+        c = cjdns.connect(password=conf['admin']['password'])
+    else:
+        c = cjdns.connect()
+
     STAT_FORMAT = '%s %19s  v%d  %7d %7d  %12s  %d/%d/%d  '
 
     for peer in c.getPeers():
         result = c.lookup(peer.ip)['result']
-        route = [x for x in c.dumpTable() if x['ip'] == peer.ip]
-        path = route[0]['path'] if route else 'NO ROUTE TO HOST'
+        path = c.getPath(peer.ip)
 
         setattr(peer, 'path', path)
         setattr(peer, 'version', result['protocolVersion'])
@@ -224,6 +232,18 @@ def n():
             line += repr(peer.user)
 
         print(line)
+
+        if neighbours:
+            for i in range(result['linkCount']):
+                link = c.getLink(peer.ip, i)
+
+                if link and 'child' in link['result']:
+                    child = link['result']['child']
+                    version = c.getVersion(child)
+                    path = c.getPath(child)
+                    print('   %s   %s  v%d' % (child, path, version))
+                else:
+                    print('   -')
 
     c.disconnect()
 

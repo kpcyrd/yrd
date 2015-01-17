@@ -67,6 +67,13 @@ class Cjdroute(object):
         self.send(**q)
         return self.recv()
 
+    def getVersion(self, ip):
+        return self.lookup(ip)['result']['protocolVersion']
+
+    def getPath(self, ip):
+        route = [x for x in self.dumpTable() if x['ip'] == ip]
+        return route[0]['path'] if route else 'NO ROUTE TO HOST'
+
     def dumpTable(self):
         for page in self.poll(q='NodeStore_dumpTable'):
             for route in page['routingTable']:
@@ -85,6 +92,10 @@ class Cjdroute(object):
     def nextHop(self, target, lastNode):
         self.send(q='RouterModule_nextHop',
                   args={'target': target, 'nodeToQuery': lastNode})
+        return self.recv()
+
+    def getLink(self, target, num):
+        self.send(q='NodeStore_getLink', args={'parent': target, 'linkNum': num})
         return self.recv()
 
     def addPassword(self, name, password):
