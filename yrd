@@ -218,6 +218,14 @@ def peer_remove():
     pass
 
 
+@named('get')
+def dht_get(*trackers):
+    'query public peers'
+    for tracker in trackers:
+        for peer in dht.request_peers(tracker):
+            yield peer.credentialstr()
+
+
 @named('peer')
 def dht_peer():
     'connect to public peers'
@@ -234,7 +242,7 @@ parser = ArghParser()
 parser.add_commands([install, start, addr, n, ping, traceroute, ns])
 parser.add_commands([peer_auth, peer_add, peer_remove],
                     namespace='peer', title='ctrl peers')
-parser.add_commands([dht_peer, dht_announce],
+parser.add_commands([dht_get, dht_peer, dht_announce],
                     namespace='dht', title='ctrl inet auto-peering')
 
 if __name__ == '__main__':
