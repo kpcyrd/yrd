@@ -147,10 +147,29 @@ def traceroute():
     pass
 
 
-@arg('--follow', help='show new nodes while they\'re discovered')
-def ns(follow=False):
+@arg('-f', '--follow', help='show new nodes while they\'re discovered')
+@wrap_errors([KeyboardInterrupt, socket.error])
+def r(follow=False):
     'access the nodestore'
-    pass
+    c = cjdns.connect()
+
+    known = []
+    FMT = '%s %s  v%d %11d %7d'
+
+    while True:
+        for node in c.dumpTable():
+            if node['ip'] not in known:
+                yield FMT % (node['ip'], node['path'], node['version'],
+                             node['link'], node['time'])
+
+                known.append(node['ip'])
+
+        if not follow:
+            break
+
+        time.sleep(3)
+
+    c.disconnect()
 
 
 @aliases('neighbours')
@@ -279,7 +298,7 @@ def dht_announce(tracker, password, contact, oneshot=False):
 
 
 parser = ArghParser()
-parser.add_commands([install, start, addr, n, ping, traceroute, ns])
+parser.add_commands([install, start, addr, n, ping, traceroute, r])
 parser.add_commands([peer_auth, peer_add, peer_remove],
                     namespace='peer', title='ctrl peers')
 parser.add_commands([dht_get, dht_peer, dht_announce],
