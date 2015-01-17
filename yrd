@@ -233,11 +233,37 @@ def dht_peer():
     pass
 
 
+@arg('tracker', help='the tracker you want to announce on')
+@arg('password', help='the password you want to share')
+@arg('-1', '--oneshot', help='if you want to announce per cronjob')
+@arg('contact', nargs='?', help='if you want to allow contact')
 @named('announce')
-def dht_announce():
+@wrap_errors([KeyboardInterrupt])
+def dht_announce(tracker, password, contact, oneshot=False):
     'announce yourself as public peer'
     import dht
-    pass
+
+    with open(CJDROUTE_CONF) as f:
+        conf = json.load(f)
+
+    addr = conf['interfaces']['UDPInterface'][0]['bind']
+    peer = {
+        'port': int(addr.split(':')[1]),
+        'publicKey': conf['publicKey'],
+        'password': password
+    }
+
+    if contact:
+        peer['contact'] = contact
+
+    while True:
+        if dht.announce(tracker, **peer):
+            yield '[+] Told the tracker we\'re here'
+
+        if oneshot:
+            break
+
+        time.sleep(120)
 
 
 parser = ArghParser()

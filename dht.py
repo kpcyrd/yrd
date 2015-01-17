@@ -21,3 +21,8 @@ def request_peers(tracker):
             yield DhtPeer(**peer)
         except TypeError:
             pass
+
+
+def announce(tracker, **kwargs):
+    resp = requests.post(tracker, json=kwargs).json()
+    return resp['status'] == 'success'
