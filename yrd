@@ -6,7 +6,6 @@ import cjdns
 import utils
 import json
 import time
-import dht
 import os
 
 CJDNS_GIT_REPO = 'https://github.com/cjdelisle/cjdns.git'
@@ -221,6 +220,7 @@ def peer_remove():
 @named('get')
 def dht_get(*trackers):
     'query public peers'
+    import dht
     for tracker in trackers:
         for peer in dht.request_peers(tracker):
             yield peer.credentialstr()
@@ -229,12 +229,14 @@ def dht_get(*trackers):
 @named('peer')
 def dht_peer():
     'connect to public peers'
+    import dht
     pass
 
 
 @named('announce')
 def dht_announce():
     'announce yourself as public peer'
+    import dht
     pass
 
 
