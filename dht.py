@@ -12,7 +12,8 @@ class DhtPeer(object):
         self.kwargs = kwargs
 
     def credentialstr(self):
-        return utils.to_credstr(self.ip, self.port, self.publicKey, self.password, **self.kwargs)
+        return utils.to_credstr(self.ip, self.port, self.publicKey,
+                                self.password, **self.kwargs)
 
 
 def request_peers(tracker):

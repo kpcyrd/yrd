@@ -185,8 +185,10 @@ def n():
     for peer in c.getPeers():
         result = c.lookup(peer.ip)['result']
         route = [x for x in c.dumpTable() if x['ip'] == peer.ip]
+        path = route[0]['path'] if route else 'NO ROUTE TO HOST'
+
+        setattr(peer, 'path', path)
         setattr(peer, 'version', result['protocolVersion'])
-        setattr(peer, 'path', route[0]['path'] if route else 'NO ROUTE TO HOST')
 
         line = STAT_FORMAT % (peer.ip, peer.path, peer.version,
                               peer.bytesIn, peer.bytesOut, peer.state,
