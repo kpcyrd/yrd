@@ -26,10 +26,18 @@ def install():
         yield '[-] you need to be root'
         return
 
-    yield '[*] checking if git is there'
-    if call(['which', 'git']):
-        yield '[-] please install git'
-        return
+    yield '[*] checking if we have git and gcc'
+    if call(['which', 'git']) or call(['which', 'gcc']):
+        yield '[/] somethings missing, checking if we can install it'
+        if not call(['which', 'apt-get']):
+            yield '[*] installing what\'s missing'
+
+            if call(['apt-get', 'install', 'build-essential', 'git']):
+                yield '[-] installation failed, please install them yourself'
+                return
+        else:
+            yield '[-] we can\'t do this automatically on your system'
+            return
 
     yield '[*] checking if cjdroute is there'
     if call(['which', 'cjdroute']):
