@@ -108,11 +108,14 @@ def addr():
     'show infos about your node'
     c = cjdns.connect()
     res = c.lookup()['result']
+    table = list(c.dumpTable())
 
-    print('addr\t\t' + res['bestParent']['ip'])
-    print('key\t\t' + res['key'])
-    print('version\t\tv' + str(res['protocolVersion']))
-    print('links\t\t' + str(res['linkCount']))
+    yield 'addr\t\t' + res['bestParent']['ip']
+    yield 'key\t\t' + res['key']
+    yield 'version\t\tv' + str(res['protocolVersion'])
+    yield ''
+    yield 'links\t\t' + str(res['linkCount'])
+    yield 'known routes\t' + str(len(table))
 
     c.disconnect()
 
