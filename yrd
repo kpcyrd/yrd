@@ -3,6 +3,7 @@ from subprocess import call, Popen, PIPE
 from argh import *
 import itertools
 import cjdns
+import utils
 import json
 import time
 import dht
@@ -168,23 +169,6 @@ def n():
     c.disconnect()
 
 
-def generate_key(length):
-    key = ''
-    with open('/dev/urandom') as f:
-        while len(key) < length:
-            x = f.read(1)
-            if x.isalnum():
-                key += x
-    return key
-
-
-def get_ip():
-    import socket
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect(('1.2.3.4', 0))
-    return s.getsockname()[0]
-
-
 @named('auth')
 def peer_auth(name):
     'add a password for inbound connections'
@@ -198,7 +182,7 @@ def peer_auth(name):
         with open(path) as f:
             password = json.load(f)['password']
     else:
-        password = generate_key(31)
+        password = utils.generate_key(31)
 
         info = {
             'type': 'in',
@@ -219,14 +203,7 @@ def peer_auth(name):
     publicKey = conf['publicKey']
     port = conf['interfaces']['UDPInterface'][0]['bind'].split(':')[1]
 
-    cred = {
-        get_ip() + ':' + port: {
-            'password': password,
-            'publicKey': publicKey
-        }
-    }
-
-    print(json.dumps(cred)[1:-1])
+    yield utils.to_credstr(utils.get_ip(), port, publicKey, password)
 
 
 @named('add')
