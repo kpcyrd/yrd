@@ -80,7 +80,7 @@ class Cjdroute(object):
                 yield route
 
     def genericPing(self, q, path, timeout=5000):
-        self.send(q=q, args={'path': path, 'timeout': 5000})
+        self.send(q=q, args={'path': path, 'timeout': timeout})
         return self.recv()
 
     def routerPing(self, *args, **kwargs):
