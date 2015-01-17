@@ -67,6 +67,11 @@ class Cjdroute(object):
         self.send(**q)
         return self.recv()
 
+    def dumpTable(self):
+        for page in self.poll(q='NodeStore_dumpTable'):
+            for route in page['routingTable']:
+                yield route
+
     def genericPing(self, q, path, timeout=5000):
         self.send(q=q, args={'path': path, 'timeout': 5000})
         return self.recv()
