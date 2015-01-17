@@ -82,6 +82,11 @@ class Cjdroute(object):
     def switchPing(self, *args, **kwargs):
         return self.genericPing('SwitchPinger_ping', *args, **kwargs)
 
+    def nextHop(self, target, lastNode):
+        self.send(q='RouterModule_nextHop',
+                  args={'target': target, 'nodeToQuery': lastNode})
+        return self.recv()
+
     def addPassword(self, name, password):
         self.send(q='AuthorizedPasswords_add',
                   args={'user': str(name), 'password': str(password)})

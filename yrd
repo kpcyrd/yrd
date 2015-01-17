@@ -145,9 +145,34 @@ def ping(ip, count=0, switch=False):
     c.disconnect()
 
 
-def traceroute():
+@arg('-f', '--verify', help='verify the selected route')
+@wrap_errors([KeyboardInterrupt, socket.error])
+def tr(target, verify=False):
     'traceroute a node'
-    pass
+    c = cjdns.connect()
+
+    if verify:
+        res = c.lookup()['result']
+        lastHop = res['bestParent']['ip']
+
+        print(lastHop)
+
+        while True:
+            x = c.nextHop(target, lastHop)
+            # TODO: implement
+            return
+    else:
+        found = 0
+        for route in c.dumpTable():
+            if route['ip'] != target:
+                continue
+
+            found += 1
+
+            yield '[+] found route #%d' % found
+            # TODO: show the route
+
+    c.disconnect()
 
 
 @arg('-f', '--follow', help='show new nodes while they\'re discovered')
@@ -303,7 +328,7 @@ def dht_announce(tracker, password, contact, oneshot=False):
 
 
 parser = ArghParser()
-parser.add_commands([install, start, addr, n, ping, traceroute, r])
+parser.add_commands([install, start, addr, n, ping, tr, r])
 parser.add_commands([peer_auth, peer_add, peer_remove],
                     namespace='peer', title='ctrl peers')
 parser.add_commands([dht_get, dht_peer, dht_announce],
