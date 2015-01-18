@@ -362,8 +362,11 @@ def dht_announce(tracker, password, contact, oneshot=False):
         peer['contact'] = contact
 
     while True:
-        if dht.announce(tracker, **peer):
-            yield '[+] Told the tracker we\'re here'
+        try:
+            if dht.announce(tracker, **peer):
+                yield '[+] Told the tracker we\'re here'
+        except IOError, e:
+            yield '[-] %s' % e
 
         if oneshot:
             break
