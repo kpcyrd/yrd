@@ -313,6 +313,18 @@ def peer_auth(name):
     yield utils.to_credstr(utils.get_ip(), port, publicKey, password)
 
 
+@named('ls')
+def peer_ls():
+    'list passwords for inbound connections'
+    with open(CJDROUTE_CONF) as f:
+        conf = json.load(f)
+
+    c = cjdns.connect(password=conf['admin']['password'])
+    for user in c.listPasswords()['users']:
+        yield user
+    c.disconnect()
+
+
 @named('add')
 def peer_add():
     'add an outbound connection'
@@ -320,9 +332,24 @@ def peer_add():
 
 
 @named('remove')
-def peer_remove():
+def peer_remove(user):
     'unpeer a node'
-    pass
+    if '/' in user:
+        yield 'nope'
+        exit(1)
+
+    path = os.path.join(YRD_PEERS, user)
+    if os.path.exists(path):
+        os.unlink(path)
+    else:
+        yield 'user not found'
+
+    with open(CJDROUTE_CONF) as f:
+        conf = json.load(f)
+
+    c = cjdns.connect(password=conf['admin']['password'])
+    c.removePassword(user)
+    c.disconnect()
 
 
 @named('get')
@@ -379,7 +406,7 @@ def dht_announce(tracker, password, contact, oneshot=False):
 
 parser = ArghParser()
 parser.add_commands([install, start, addr, n, ping, tr, r, uplinks])
-parser.add_commands([peer_auth, peer_add, peer_remove],
+parser.add_commands([peer_auth, peer_add, peer_ls, peer_remove],
                     namespace='peer', title='ctrl peers')
 parser.add_commands([dht_get, dht_peer, dht_announce],
                     namespace='dht', title='ctrl inet auto-peering')

@@ -102,6 +102,14 @@ class Cjdroute(object):
         self.send(q='AuthorizedPasswords_add',
                   args={'user': str(name), 'password': str(password)})
 
+    def listPasswords(self):
+        self.send(q='AuthorizedPasswords_list')
+        return self.recv()
+
+    def removePassword(self, user):
+        self.send(q='AuthorizedPasswords_remove', args={'user': user})
+        return self.recv()
+
     def getPeers(self):
         for page in self.poll(q='InterfaceController_peerStats'):
             for i, args in page.items():
