@@ -19,9 +19,12 @@ How to install cjdns with yrd
     # finally, install yrd
     ./yrd install
     # if you're using systemd
-    cp yrd.service /etc/systemd/system/
+    cp init/yrd.service /etc/systemd/system/
     systemctl enable yrd
     systemctl start yrd
+    # if you're using init-sysv
+    cp init/yrd.sh /etc/init.d/yrd
+    update-rc.d yrd enable
 
 Sample Output
 -------------
