@@ -11,7 +11,7 @@ class Cjdroute(object):
 
         self.s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.s.connect((ip, port))
-        self.s.settimeout(2)
+        self.s.settimeout(7)
 
         if not self.ping():
             raise Exception('Not a cjdns socket? (%s:%d)' % (ip, port))

@@ -126,19 +126,22 @@ def addr():
 @wrap_errors([KeyboardInterrupt, socket.error])
 def ping(ip, count=0, switch=False):
     'ping a node'
-    c = cjdns.connect()
+    with open(CJDROUTE_CONF) as f:
+        conf = json.load(f)
+
+    c = cjdns.connect(password=conf['admin']['password'])
+
     ping = c.switchPing if switch else c.routerPing
 
     for _ in xrange(count) if count else itertools.repeat(None):
-        # doesn't work yet
         resp = ping(ip)
 
-        l = str(int(time.time()))
-
-        if 'error' in resp and resp['error'] == 'not_found':
-            l += ' No route to host'
-
-        print(l)
+        if 'error' in resp:
+            yield 'Error: %s' % resp['error']
+        elif resp['result'] == 'pong':
+            yield 'Reply from %s %dms' % (resp['from'], resp['ms'])
+        elif resp['result'] == 'timeout':
+            yield 'Timeout from %s after %dms' % (ip, resp['ms'])
 
         time.sleep(1)
 
