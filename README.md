@@ -11,6 +11,12 @@ How to install cjdns with yrd
 
     git clone https://github.com/kpcyrd/yrd.git
     cd yrd
+    # install dependencies
+    apt-get install python-argh
+    # if that fails, install via pip
+    apt-get install python-pip
+    pip install -r requirements.txt
+    # finally, install yrd
     ./yrd install
     # if you're using systemd
     cp yrd.service /etc/systemd/system/
