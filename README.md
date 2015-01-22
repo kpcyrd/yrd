@@ -12,6 +12,10 @@ How to install cjdns with yrd
     git clone https://github.com/kpcyrd/yrd.git
     cd yrd
     ./yrd install
+    # if you're using systemd
+    cp yrd.service /etc/systemd/system/
+    systemctl enable yrd
+    systemctl start yrd
 
 Sample Output
 -------------
