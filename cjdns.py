@@ -88,7 +88,8 @@ class Cjdroute(object):
         return self.recv()
 
     def getLink(self, target, num):
-        self.send(q='NodeStore_getLink', args={'parent': target, 'linkNum': num})
+        self.send(q='NodeStore_getLink', args={'parent': target,
+                                               'linkNum': num})
         return self.recv()
 
     def addPassword(self, name, password):
@@ -101,6 +102,11 @@ class Cjdroute(object):
 
     def removePassword(self, user):
         self.send(q='AuthorizedPasswords_remove', args={'user': user})
+        return self.recv()
+
+    def udp_begin_connection(self, addr, pk, password):
+        self.send(q='UDPInterface_beginConnection', args={'password': password,
+                  'publicKey': pk, 'address': addr})
         return self.recv()
 
     def getPeers(self):
