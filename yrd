@@ -100,7 +100,8 @@ def start():
             if info['type'] == 'in':
                 c.addPassword(info['name'], info['password'])
             elif info['type'] == 'out':
-                c.udp_begin_connection(str(info['addr']), str(info['pk']),
+                addr = utils.dns_resolve(info['addr'])
+                c.udp_begin_connection(str(addr), str(info['pk']),
                                        str(info['password']))
 
     c.disconnect()
@@ -353,15 +354,13 @@ def peer_add(name, addr, pk, password):
         'password': password
     }
 
-    addr = addr.split(':')
-    addr[0] = socket.gethostbyname(addr[0])
-    addr = ':'.join(addr)
-
     with open(path, 'w') as f:
         f.write(json.dumps(info))
 
     with open(CJDROUTE_CONF) as f:
         conf = json.load(f)
+
+    addr = utils.dns_resolve(addr)
 
     c = cjdns.connect(password=conf['admin']['password'])
     c.udp_begin_connection(addr, pk, password)

@@ -39,3 +39,9 @@ def get_version(route):
 
 def get_path(route):
     return get_from_route(route, 'path', 'NO ROUTE TO HOST')
+
+
+def dns_resolve(addr):
+    addr = addr.split(':')
+    addr[0] = socket.gethostbyname(addr[0])
+    return ':'.join(addr)
