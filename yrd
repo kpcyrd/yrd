@@ -353,6 +353,10 @@ def peer_add(name, addr, pk, password):
         'password': password
     }
 
+    addr = addr.split(':')
+    addr[0] = socket.gethostbyname(addr[0])
+    addr = ':'.join(addr)
+
     with open(path, 'w') as f:
         f.write(json.dumps(info))
 
