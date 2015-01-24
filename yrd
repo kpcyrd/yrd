@@ -218,13 +218,15 @@ def n(neighbours=False):
         c = cjdns.connect()
 
     STAT_FORMAT = '%s %19s  v%d  %7d %7d  %12s  %d/%d/%d  '
+    nodestore = list(c.dumpTable())
 
     for peer in c.getPeers():
         result = c.lookup(peer.ip)['result']
-        path = c.getPath(peer.ip)
+
+        route = utils.grep_ns(nodestore, peer.ip)
+        path = utils.get_path(route)
 
         setattr(peer, 'path', path)
-        setattr(peer, 'version', result['protocolVersion'])
 
         line = STAT_FORMAT % (peer.ip, peer.path, peer.version,
                               peer.bytesIn, peer.bytesOut, peer.state,
@@ -242,9 +244,12 @@ def n(neighbours=False):
 
                 if link and 'child' in link['result']:
                     child = link['result']['child']
-                    version = c.getVersion(child)
-                    path = c.getPath(child)
-                    print('   %s   %s  v%d' % (child, path, version))
+                    route = utils.grep_ns(nodestore, child)
+
+                    version = utils.get_version(route)
+                    path = utils.get_path(route)
+
+                    print('   %s   %s  v%s' % (child, path, version))
                 else:
                     print('   -')
 
@@ -258,6 +263,7 @@ def uplinks(ip, trace=False):
         conf = json.load(f)
 
     c = cjdns.connect(password=conf['admin']['password'])
+    nodestore = list(c.dumpTable())
 
     result = c.lookup(ip)['result']
     for i in range(result['linkCount']):
@@ -265,9 +271,11 @@ def uplinks(ip, trace=False):
 
         if link and 'child' in link['result']:
             child = link['result']['child']
-            result = c.lookup(child)['result']
-            version = result['protocolVersion']
-            path = c.getPath(child)
+            route = utils.grep_ns(nodestore, child)
+
+            version = utils.get_version(route)
+            path = utils.get_path(route)
+
             yield '%s   %s  v%d' % (child, path, version)
         else:
             yield('-')

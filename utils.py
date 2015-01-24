@@ -23,3 +23,19 @@ def to_credstr(ip, port, publicKey, password, **kwargs):
     kwargs['password'] = password
     kwargs['publicKey'] = publicKey
     return json.dumps({addr: kwargs})[1:-1]
+
+
+def grep_ns(ns, ip):
+    return [x for x in ns if x['ip'] == ip]
+
+
+def get_from_route(route, key, default):
+    return route[0][key] if route else default
+
+
+def get_version(route):
+    return get_from_route(route, 'version', '??')
+
+
+def get_path(route):
+    return get_from_route(route, 'path', 'NO ROUTE TO HOST')
