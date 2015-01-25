@@ -162,7 +162,7 @@ def tr(target, verify=False):
         res = c.lookup()['result']
         lastHop = res['bestParent']['ip']
 
-        print(lastHop)
+        yield lastHop
 
         while True:
             x = c.nextHop(target, lastHop)
@@ -240,7 +240,7 @@ def n(neighbours=False):
         if hasattr(peer, 'user'):
             line += repr(peer.user)
 
-        print(line)
+        yield line
 
         if neighbours:
             for i in range(result['linkCount']):
@@ -253,9 +253,9 @@ def n(neighbours=False):
                     version = utils.get_version(route)
                     path = utils.get_path(route)
 
-                    print('   %s   %s  v%s' % (child, path, version))
+                    yield '   %s   %s  v%s' % (child, path, version)
                 else:
-                    print('   -')
+                    yield '   -'
 
     c.disconnect()
 
@@ -298,7 +298,7 @@ def whois(ip):
             break
         for line in data.split('\n'):
             line = line.rstrip()
-            print(repr(line)[1:-1])
+            yield repr(line)[1:-1]
     c.close()
 
 
