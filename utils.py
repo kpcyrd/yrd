@@ -1,3 +1,4 @@
+from subprocess import Popen, PIPE
 import socket
 import json
 
@@ -50,6 +51,9 @@ def dns_resolve(addr):
 def load_conf(path):
     try:
         with open(path) as f:
-            return json.load(f)
+            conf = f.read()
+
+        p = Popen(['cjdroute', '--cleanconf'], stdin=PIPE, stdout=PIPE)
+        return json.loads(p.communicate(conf)[0])
     except ValueError:
         raise Exception('failed to load cjdroute.conf as json')

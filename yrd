@@ -83,11 +83,9 @@ def install():
     if not os.path.exists(CJDROUTE_CONF):
         yield '[*] generating cjdroute'
         conf = check_output(['cjdroute', '--genconf'])
-        p = Popen(['cjdroute', '--cleanconf'], stdin=PIPE, stdout=PIPE)
-        conf = p.communicate(conf)
 
         with open(CJDROUTE_CONF, 'w') as f:
-            f.write(conf[0])
+            f.write(conf)
 
     yield '[+] installation complete'
 
