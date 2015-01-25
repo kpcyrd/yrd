@@ -352,12 +352,19 @@ def peer_ls():
     c.disconnect()
 
 
+@arg('name', help='the peers name')
+@arg('addr', help='the peers address (ip:port)')
+@arg('pk', help='the peers public key')
+@arg('password', nargs='?', help='the password')
 @named('add')
 def peer_add(name, addr, pk, password):
     'add an outbound connection'
     if '/' in name:
         yield 'nope'
         exit(1)
+
+    if not password:
+        password = raw_input('Password: ')
 
     path = os.path.join(YRD_PEERS, name)
 
