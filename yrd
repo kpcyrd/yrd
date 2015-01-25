@@ -303,8 +303,11 @@ def whois(ip):
 
 
 @named('auth')
+@arg('-l', '--live', help='Don\'t write to disk')
+@arg('-c', '--cjdroute', help='Show cjdroute output only')
+@arg('-y', '--yrd', help='Show yrd output only')
 @wrap_errors([socket.error])
-def peer_auth(name):
+def peer_auth(name, live=False, cjdroute=False, yrd=False):
     'add a password for inbound connections'
 
     if '/' in name:
@@ -324,8 +327,9 @@ def peer_auth(name):
             'password': password
         }
 
-        with open(path, 'w') as f:
-            f.write(json.dumps(info))
+        if not live:
+            with open(path, 'w') as f:
+                f.write(json.dumps(info))
 
     with open(CJDROUTE_CONF) as f:
         conf = json.load(f)
@@ -337,10 +341,13 @@ def peer_auth(name):
     publicKey = conf['publicKey']
     port = conf['interfaces']['UDPInterface'][0]['bind'].split(':')[1]
 
-    yield utils.to_credstr(utils.get_ip(), port, publicKey, password)
-    yield ''
-    yield 'yrd peer add namehere %s:%s %s %s' % (utils.get_ip(), port,
-                                                 publicKey, password)
+    if (not cjdroute and not yrd) or cjdroute:
+        yield utils.to_credstr(utils.get_ip(), port, publicKey, password)
+    if not cjdroute and not yrd:
+        yield ''
+    if (not cjdroute and not yrd) or yrd:
+        yield 'yrd peer add namehere %s:%s %s %s' % (utils.get_ip(), port,
+                                                     publicKey, password)
 
 
 @named('ls')
@@ -359,8 +366,9 @@ def peer_ls():
 @arg('addr', help='the peers address (ip:port)')
 @arg('pk', help='the peers public key')
 @arg('password', nargs='?', help='the password')
+@arg('-l', '--live', help='Don\'t write to disk')
 @named('add')
-def peer_add(name, addr, pk, password):
+def peer_add(name, addr, pk, password, live=False):
     'add an outbound connection'
     if '/' in name:
         yield 'nope'
@@ -379,8 +387,9 @@ def peer_add(name, addr, pk, password):
         'password': password
     }
 
-    with open(path, 'w') as f:
-        f.write(json.dumps(info))
+    if not live:
+        with open(path, 'w') as f:
+            f.write(json.dumps(info))
 
     with open(CJDROUTE_CONF) as f:
         conf = json.load(f)
