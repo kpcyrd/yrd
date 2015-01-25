@@ -120,7 +120,9 @@ def start():
 @wrap_errors([socket.error])
 def addr():
     'show infos about your node'
-    c = cjdns.connect()
+    conf = utils.load_conf(CJDROUTE_CONF)
+    c = cjdns.connect(password=conf['admin']['password'])
+
     res = c.nodeForAddr()['result']
     table = list(c.dumpTable())
 
