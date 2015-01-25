@@ -105,8 +105,13 @@ def start():
     c = cjdns.connect(password=conf['admin']['password'])
 
     for peer in os.listdir(YRD_PEERS):
-        with open(os.path.join(YRD_PEERS, peer)) as f:
-            info = json.load(f)
+        yield '[*] adding %r' % peer
+        try:
+            with open(os.path.join(YRD_PEERS, peer)) as f:
+                info = json.load(f)
+        except ValueError:
+            yield '[-] invalid json'
+        else:
             if info['type'] == 'in':
                 c.addPassword(info['name'], info['password'])
             elif info['type'] == 'out':
