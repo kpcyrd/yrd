@@ -233,10 +233,13 @@ def n(neighbours=False):
 
     connections = {}
 
-    for peer in os.listdir(YRD_PEERS):
-        with open(os.path.join(YRD_PEERS, peer)) as f:
-            info = json.load(f)
-            connections[info['pk']] = str(info['name'])
+    try:
+        for peer in os.listdir(YRD_PEERS):
+            with open(os.path.join(YRD_PEERS, peer)) as f:
+                info = json.load(f)
+                connections[info['pk']] = str(info['name'])
+    except OSError:
+        pass
 
     for peer in c.peerStats():
         result = c.nodeForAddr(peer.ip)['result']
