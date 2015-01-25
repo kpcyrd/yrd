@@ -223,14 +223,10 @@ def r(follow=False):
 @wrap_errors([socket.error])
 def n(neighbours=False):
     'shows your neighbours'
+    with open(CJDROUTE_CONF) as f:
+        conf = json.load(f)
 
-    if neighbours:
-        with open(CJDROUTE_CONF) as f:
-            conf = json.load(f)
-
-        c = cjdns.connect(password=conf['admin']['password'])
-    else:
-        c = cjdns.connect()
+    c = cjdns.connect(password=conf['admin']['password'])
 
     STAT_FORMAT = '%s %19s  v%d  %7d %7d  %12s  %d/%d/%d  '
     nodestore = list(c.dumpTable())
