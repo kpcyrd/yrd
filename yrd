@@ -224,6 +224,13 @@ def n(neighbours=False):
     STAT_FORMAT = '%s %19s  v%d  %7d %7d  %12s  %d/%d/%d  '
     nodestore = list(c.dumpTable())
 
+    connections = {}
+
+    for peer in os.listdir(YRD_PEERS):
+        with open(os.path.join(YRD_PEERS, peer)) as f:
+            info = json.load(f)
+            connections[info['pk']] = str(info['name'])
+
     for peer in c.getPeers():
         result = c.lookup(peer.ip)['result']
 
@@ -239,6 +246,8 @@ def n(neighbours=False):
 
         if hasattr(peer, 'user'):
             line += repr(peer.user)
+        elif peer.publicKey in connections:
+            line += repr(connections[peer.publicKey])
 
         yield line
 
