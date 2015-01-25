@@ -338,6 +338,9 @@ def peer_auth(name):
     port = conf['interfaces']['UDPInterface'][0]['bind'].split(':')[1]
 
     yield utils.to_credstr(utils.get_ip(), port, publicKey, password)
+    yield ''
+    yield 'yrd peer add namehere %s:%s %s %s' % (utils.get_ip(), port,
+                                                 publicKey, password)
 
 
 @named('ls')
