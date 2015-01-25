@@ -101,7 +101,7 @@ def start():
                 c.addPassword(info['name'], info['password'])
             elif info['type'] == 'out':
                 addr = utils.dns_resolve(info['addr'])
-                c.udp_begin_connection(str(addr), str(info['pk']),
+                c.udpBeginConnection(str(addr), str(info['pk']),
                                        str(info['password']))
 
     c.disconnect()
@@ -111,7 +111,7 @@ def start():
 def addr():
     'show infos about your node'
     c = cjdns.connect()
-    res = c.lookup()['result']
+    res = c.nodeForAddr()['result']
     table = list(c.dumpTable())
 
     yield 'addr\t\t' + res['bestParent']['ip']
@@ -159,7 +159,7 @@ def tr(target, verify=False):
     c = cjdns.connect()
 
     if verify:
-        res = c.lookup()['result']
+        res = c.nodeForAddr()['result']
         lastHop = res['bestParent']['ip']
 
         yield lastHop
@@ -231,8 +231,8 @@ def n(neighbours=False):
             info = json.load(f)
             connections[info['pk']] = str(info['name'])
 
-    for peer in c.getPeers():
-        result = c.lookup(peer.ip)['result']
+    for peer in c.peerStats():
+        result = c.nodeForAddr(peer.ip)['result']
 
         route = utils.grep_ns(nodestore, peer.ip)
         path = utils.get_path(route)
@@ -278,7 +278,7 @@ def uplinks(ip, trace=False):
     c = cjdns.connect(password=conf['admin']['password'])
     nodestore = list(c.dumpTable())
 
-    result = c.lookup(ip)['result']
+    result = c.nodeForAddr(ip)['result']
     for i in range(result['linkCount']):
         link = c.getLink(ip, i)
 
@@ -406,7 +406,7 @@ def peer_add(name, addr, pk, password, live=False):
     addr = utils.dns_resolve(addr)
 
     c = cjdns.connect(password=conf['admin']['password'])
-    c.udp_begin_connection(addr, pk, password)
+    c.udpBeginConnection(addr, pk, password)
     c.disconnect()
 
 

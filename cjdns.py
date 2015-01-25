@@ -60,7 +60,7 @@ class Cjdroute(object):
         resp = self.recv()
         return 'q' in resp and resp['q'] == 'pong'
 
-    def lookup(self, ip=None):
+    def nodeForAddr(self, ip=None):
         q = dict(q='NodeStore_nodeForAddr')
         if ip:
             q['ip'] = ip
@@ -104,12 +104,12 @@ class Cjdroute(object):
         self.send(q='AuthorizedPasswords_remove', args={'user': user})
         return self.recv()
 
-    def udp_begin_connection(self, addr, pk, password):
+    def udpBeginConnection(self, addr, pk, password):
         self.send(q='UDPInterface_beginConnection', args={'password': password,
                   'publicKey': pk, 'address': addr})
         return self.recv()
 
-    def getPeers(self):
+    def peerStats(self):
         for page in self.poll(q='InterfaceController_peerStats'):
             for i, args in page.items():
                 if i == 'peers':
