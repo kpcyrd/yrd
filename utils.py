@@ -45,3 +45,11 @@ def dns_resolve(addr):
     addr = addr.split(':')
     addr[0] = socket.gethostbyname(addr[0])
     return ':'.join(addr)
+
+
+def load_conf(path):
+    try:
+        with open(path) as f:
+            return json.load(f)
+    except ValueError:
+        raise Exception('failed to load cjdroute.conf as json')

@@ -94,13 +94,10 @@ def install():
 
 @wrap_errors([KeyboardInterrupt])
 def start():
-    with open(CJDROUTE_CONF) as f:
-        conf = f.read()
+    conf = utils.load_conf(CJDROUTE_CONF)
 
     p = Popen(['cjdroute'], stdin=PIPE)
-    p.communicate(conf)
-
-    conf = json.loads(conf)
+    p.communicate(json.dumps(conf))
 
     c = cjdns.connect(password=conf['admin']['password'])
 
@@ -145,9 +142,7 @@ def addr():
 @wrap_errors([KeyboardInterrupt, socket.error])
 def ping(ip, count=0, switch=False):
     'ping a node'
-    with open(CJDROUTE_CONF) as f:
-        conf = json.load(f)
-
+    conf = utils.load_conf(CJDROUTE_CONF)
     c = cjdns.connect(password=conf['admin']['password'])
 
     ping = c.switchPing if switch else c.routerPing
@@ -227,9 +222,7 @@ def r(follow=False):
 @wrap_errors([socket.error])
 def n(neighbours=False):
     'shows your neighbours'
-    with open(CJDROUTE_CONF) as f:
-        conf = json.load(f)
-
+    conf = utils.load_conf(CJDROUTE_CONF)
     c = cjdns.connect(password=conf['admin']['password'])
 
     STAT_FORMAT = '%s %19s  v%d  %7d %7d  %12s  %d/%d/%d  '
@@ -286,9 +279,7 @@ def n(neighbours=False):
 @arg('-t', '--trace', help='')
 def uplinks(ip, trace=False):
     'show uplinks of a node'
-    with open(CJDROUTE_CONF) as f:
-        conf = json.load(f)
-
+    conf = utils.load_conf(CJDROUTE_CONF)
     c = cjdns.connect(password=conf['admin']['password'])
     nodestore = list(c.dumpTable())
 
@@ -354,9 +345,7 @@ def peer_auth(name, live=False, cjdroute=False, yrd=False):
             with open(path, 'w') as f:
                 f.write(json.dumps(info))
 
-    with open(CJDROUTE_CONF) as f:
-        conf = json.load(f)
-
+    conf = utils.load_conf(CJDROUTE_CONF)
     c = cjdns.connect(password=conf['admin']['password'])
     c.addPassword(name, password)
     c.disconnect()
@@ -376,9 +365,7 @@ def peer_auth(name, live=False, cjdroute=False, yrd=False):
 @named('ls')
 def peer_ls():
     'list passwords for inbound connections'
-    with open(CJDROUTE_CONF) as f:
-        conf = json.load(f)
-
+    conf = utils.load_conf(CJDROUTE_CONF)
     c = cjdns.connect(password=conf['admin']['password'])
     for user in c.listPasswords()['users']:
         yield user
@@ -414,8 +401,7 @@ def peer_add(name, addr, pk, password, live=False):
         with open(path, 'w') as f:
             f.write(json.dumps(info))
 
-    with open(CJDROUTE_CONF) as f:
-        conf = json.load(f)
+    conf = utils.load_conf(CJDROUTE_CONF)
 
     addr = utils.dns_resolve(addr)
 
@@ -437,9 +423,7 @@ def peer_remove(user):
     else:
         yield 'user not found'
 
-    with open(CJDROUTE_CONF) as f:
-        conf = json.load(f)
-
+    conf = utils.load_conf(CJDROUTE_CONF)
     c = cjdns.connect(password=conf['admin']['password'])
     c.removePassword(user)
     c.disconnect()
@@ -471,8 +455,7 @@ def dht_announce(tracker, password, contact, oneshot=False):
     'announce yourself as public peer'
     import dht
 
-    with open(CJDROUTE_CONF) as f:
-        conf = json.load(f)
+    conf = utils.load_conf(CJDROUTE_CONF)
 
     addr = conf['interfaces']['UDPInterface'][0]['bind']
     peer = {
