@@ -92,6 +92,18 @@ fc4b:2571:aa1a:d4d1:67d6:2d57:c2d2:a329   0000.0000.0000.1935  v13
 -
 ```
 
+### Whois lookup
+Asks the remote server for whois information.
+
+The remote server needs to run a whoisd like (iam)[https://github.com/kpcyrd/iam].
+
+```
+# yrd whois fc42:0af2:018d:3505:7506:d730:49ae:2ffa
+% Hyperboria Whois Information
+%
+foobar
+```
+
 How to pronounce this
 ---------------------
 

@@ -287,6 +287,21 @@ def uplinks(ip, trace=False):
     c.disconnect()
 
 
+@wrap_errors([socket.error])
+def whois(ip):
+    'asks the remote server for whois information'
+    c = socket.create_connection((ip, 43))
+    c.send("%s\r\n" % ip)
+    while True:
+        data = c.recv(4096)
+        if not data:
+            break
+        for line in data.split('\n'):
+            line = line.rstrip()
+            print(repr(line)[1:-1])
+    c.close()
+
+
 @named('auth')
 @wrap_errors([socket.error])
 def peer_auth(name):
@@ -441,7 +456,7 @@ def dht_announce(tracker, password, contact, oneshot=False):
 
 
 parser = ArghParser()
-parser.add_commands([install, start, addr, n, ping, tr, r, uplinks])
+parser.add_commands([install, start, addr, n, ping, tr, r, uplinks, whois])
 parser.add_commands([peer_auth, peer_add, peer_ls, peer_remove],
                     namespace='peer', title='ctrl peers')
 parser.add_commands([dht_get, dht_peer, dht_announce],
