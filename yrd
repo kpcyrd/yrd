@@ -79,7 +79,6 @@ def install():
             yield '[*] creating ' + folder
             os.mkdir(folder, 0700)
 
-
     yield '[*] checking cjdroute.conf'
     if not os.path.exists(CJDROUTE_CONF):
         yield '[*] generating cjdroute'
@@ -113,7 +112,7 @@ def start():
             elif info['type'] == 'out':
                 addr = utils.dns_resolve(info['addr'])
                 c.udpBeginConnection(str(addr), str(info['pk']),
-                                       str(info['password']))
+                                     str(info['password']))
 
     c.disconnect()
 

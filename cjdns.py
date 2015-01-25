@@ -20,7 +20,10 @@ class Cjdroute(object):
         self.s.close()
 
     def recv(self):
-        return bdecode(self.s.recv(BUFFER_SIZE))
+        res = bdecode(self.s.recv(BUFFER_SIZE))
+        if 'error' in res and res['error'] != 'none':
+            raise Exception(repr(res))
+        return res
 
     def _send(self, **kwargs):
         self.s.send(bencode(kwargs))
