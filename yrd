@@ -90,7 +90,7 @@ def install():
     yield '[+] installation complete'
 
 
-@wrap_errors([KeyboardInterrupt])
+@wrap_errors([KeyboardInterrupt, IOError])
 def start():
     conf = utils.load_conf(CJDROUTE_CONF)
 
@@ -117,7 +117,7 @@ def start():
     c.disconnect()
 
 
-@wrap_errors([socket.error])
+@wrap_errors([socket.error, IOError])
 def addr():
     'show infos about your node'
     conf = utils.load_conf(CJDROUTE_CONF)
@@ -139,7 +139,7 @@ def addr():
 @arg('ip', help='the cjdns ipv6')
 @arg('-c', '--count', metavar='count', help='stop after `count` packets')
 @arg('-s', '--switch', help='do a switch ping instead of a router ping')
-@wrap_errors([KeyboardInterrupt, socket.error])
+@wrap_errors([KeyboardInterrupt, socket.error, IOError])
 def ping(ip, count=0, switch=False):
     'ping a node'
     conf = utils.load_conf(CJDROUTE_CONF)
@@ -219,7 +219,7 @@ def r(follow=False):
 
 @arg('-n', '--neighbours', help='show neighbours peers')
 @aliases('neighbours')
-@wrap_errors([socket.error])
+@wrap_errors([socket.error, IOError])
 def n(neighbours=False):
     'shows your neighbours'
     conf = utils.load_conf(CJDROUTE_CONF)
@@ -277,6 +277,7 @@ def n(neighbours=False):
 
 
 @arg('-t', '--trace', help='')
+@wrap_errors([IOError])
 def uplinks(ip, trace=False):
     'show uplinks of a node'
     conf = utils.load_conf(CJDROUTE_CONF)
@@ -320,7 +321,7 @@ def whois(ip):
 @arg('-l', '--live', help='Don\'t write to disk')
 @arg('-c', '--cjdroute', help='Show cjdroute output only')
 @arg('-y', '--yrd', help='Show yrd output only')
-@wrap_errors([socket.error])
+@wrap_errors([socket.error, IOError])
 def peer_auth(name, live=False, cjdroute=False, yrd=False):
     'add a password for inbound connections'
 
@@ -363,6 +364,7 @@ def peer_auth(name, live=False, cjdroute=False, yrd=False):
 
 
 @named('ls')
+@wrap_errors([IOError])
 def peer_ls():
     'list passwords for inbound connections'
     conf = utils.load_conf(CJDROUTE_CONF)
@@ -378,6 +380,7 @@ def peer_ls():
 @arg('password', nargs='?', help='the password')
 @arg('-l', '--live', help='Don\'t write to disk')
 @named('add')
+@wrap_errors([IOError])
 def peer_add(name, addr, pk, password, live=False):
     'add an outbound connection'
     if '/' in name:
@@ -411,6 +414,7 @@ def peer_add(name, addr, pk, password, live=False):
 
 
 @named('remove')
+@wrap_errors([IOError])
 def peer_remove(user):
     'unpeer a node'
     if '/' in user:
@@ -450,7 +454,7 @@ def dht_peer():
 @arg('-1', '--oneshot', help='if you want to announce per cronjob')
 @arg('contact', nargs='?', help='if you want to allow contact')
 @named('announce')
-@wrap_errors([KeyboardInterrupt])
+@wrap_errors([KeyboardInterrupt, IOError])
 def dht_announce(tracker, password, contact, oneshot=False):
     'announce yourself as public peer'
     import dht
