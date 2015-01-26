@@ -134,10 +134,6 @@ def connect(ip='127.0.0.1', port=11234, password=''):
     return Cjdroute(ip, port, password)
 
 
-def pk2ipv6(publicKey):
-    return 'fcc7:f439:fe7e:2c87:8bc9:caee:87a7:79ec'
-
-
 # see util/Base32.h
 def Base32_decode(input):
     output = bytearray(len(input))
