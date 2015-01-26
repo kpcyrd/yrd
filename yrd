@@ -152,6 +152,8 @@ def ping(ip, count=0, switch=False):
 
         if 'error' in resp:
             yield 'Error: %s' % resp['error']
+        elif resp['result'] == 'pong' and switch:
+            yield 'Reply from %s %dms' % (resp['path'], resp['ms'])
         elif resp['result'] == 'pong':
             yield 'Reply from %s %dms' % (resp['from'], resp['ms'])
         elif resp['result'] == 'timeout':
