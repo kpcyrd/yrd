@@ -109,6 +109,11 @@ How to pronounce this
 
 Like "wired"
 
+"Thanks" goes to
+----------------
+
+- appa - found some bugs and rough edges
+
 Contributing
 ------------
 
