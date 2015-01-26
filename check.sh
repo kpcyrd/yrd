@@ -1,2 +1,2 @@
 #!/bin/sh
-pep8 yrd cjdns.py dht.py utils.py
+pep8 yrd cjdns.py nf.py utils.py

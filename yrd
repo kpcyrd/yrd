@@ -436,18 +436,18 @@ def peer_remove(user):
 
 
 @named('get')
-def dht_get(*trackers):
+def nf_get(*trackers):
     'query public peers'
-    import dht
+    import nf
     for tracker in trackers:
-        for peer in dht.request_peers(tracker):
+        for peer in nf.request_peers(tracker):
             yield peer.credentialstr()
 
 
 @named('peer')
-def dht_peer():
+def nf_peer():
     'connect to public peers'
-    import dht
+    import nf
     pass
 
 
@@ -457,9 +457,9 @@ def dht_peer():
 @arg('contact', nargs='?', help='if you want to allow contact')
 @named('announce')
 @wrap_errors([KeyboardInterrupt, IOError])
-def dht_announce(tracker, password, contact, oneshot=False):
+def nf_announce(tracker, password, contact, oneshot=False):
     'announce yourself as public peer'
-    import dht
+    import nf
 
     conf = utils.load_conf(CJDROUTE_CONF)
 
@@ -475,7 +475,7 @@ def dht_announce(tracker, password, contact, oneshot=False):
 
     while True:
         try:
-            if dht.announce(tracker, **peer):
+            if nf.announce(tracker, **peer):
                 yield '[+] Told the tracker we\'re here'
         except (IOError, ValueError), e:
             yield '[-] %s' % e
@@ -490,8 +490,8 @@ parser = ArghParser()
 parser.add_commands([install, start, addr, n, ping, tr, r, uplinks, whois])
 parser.add_commands([peer_auth, peer_add, peer_ls, peer_remove],
                     namespace='peer', title='ctrl peers')
-parser.add_commands([dht_get, dht_peer, dht_announce],
-                    namespace='dht', title='ctrl inet auto-peering')
+parser.add_commands([nf_get, nf_peer, nf_announce],
+                    namespace='nf', title='ctrl inet auto-peering')
 
 if __name__ == '__main__':
     dispatch(parser)
