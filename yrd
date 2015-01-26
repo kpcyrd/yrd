@@ -44,10 +44,11 @@ def install():
     if call(['which', 'cjdroute']):
         yield '[/] not found, continuing'
 
-        yield '[*] cloning cjdns'
-        if call(['git', 'clone', CJDNS_GIT_REPO, CJDNS_CLONE_DIR]):
-            yield '[-] clone failed'
-            return
+        if not os.path.exists(CJDNS_CLONE_DIR):
+            yield '[*] cloning cjdns'
+            if call(['git', 'clone', CJDNS_GIT_REPO, CJDNS_CLONE_DIR]):
+                yield '[-] clone failed'
+                return
 
         yield '[*] compiling cjdns'
         if call(['sh', '-c', 'cd "%s" && ./do' % CJDNS_CLONE_DIR]):
@@ -62,10 +63,11 @@ def install():
     yield '[*] checking if yrd is in your path'
     if call(['which', 'yrd']):
         yield '[/] not in your path, doing a proper install from scratch'
-        yield '[*] cloning yrd'
-        if call(['git', 'clone', YRD_GIT_REPO, YRD_CLONE_DIR]):
-            yield '[-] clone failed'
-            return
+        if not os.path.exists(YRD_CLONE_DIR):
+            yield '[*] cloning yrd'
+            if call(['git', 'clone', YRD_GIT_REPO, YRD_CLONE_DIR]):
+                yield '[-] clone failed'
+                return
 
         yield '[*] creating symlink'
         os.symlink(os.path.join(YRD_CLONE_DIR, 'yrd'),
