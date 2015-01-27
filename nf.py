@@ -17,7 +17,12 @@ class DhtPeer(object):
 
 
 def request_peers(tracker):
-    for peer in requests.get(tracker).json():
+    response = requests.get(tracker).json
+
+    if not type(response) is list:
+        response = response()
+
+    for peer in response:
         try:
             yield DhtPeer(**peer)
         except TypeError:
