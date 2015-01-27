@@ -447,10 +447,14 @@ def nf_get(*trackers):
 
 
 @named('peer')
-def nf_peer():
+def nf_peer(*trackers):
     'connect to public peers'
     import nf
-    pass
+    for tracker in trackers:
+        for peer in nf.request_peers(tracker):
+            addr = '%s:%d' % (peer.ip, peer.port)
+            peer_add(peer.ip, addr, peer.publicKey, peer.password)
+            yield '[+] peered with %s' % addr
 
 
 @arg('tracker', help='the tracker you want to announce on')
