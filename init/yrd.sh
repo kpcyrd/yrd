@@ -11,10 +11,7 @@
 # cjdns git repo:    https://github.com/cjdelisle/cjdns/
 ### END INIT INFO
 
-PROG="cjdroute"
 GIT_PATH="/opt/cjdns"
-PROG_PATH="/opt/cjdns"
-CJDNS_CONFIG="/var/lib/yrd/cjdroute.conf"
 CJDNS_USER="root"  #see wiki about changing user to service user.
 
 start() {
@@ -24,7 +21,7 @@ start() {
          echo "Cjdroute is already running. Doing nothing..."
      else
          echo " * Starting cjdroute"
-         sudo -u $CJDNS_USER $PROG_PATH/$PROG < $CJDNS_CONFIG
+         sudo -u $CJDNS_USER yrd start
      fi
  }
 
