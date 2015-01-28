@@ -238,7 +238,10 @@ def n(neighbours=False):
         for peer in os.listdir(YRD_PEERS):
             with open(os.path.join(YRD_PEERS, peer)) as f:
                 info = json.load(f)
-                connections[info['pk']] = str(info['name'])
+                try:
+                    connections[info['pk']] = str(info['name'])
+                except KeyError:
+                    pass
     except OSError:
         pass
 
