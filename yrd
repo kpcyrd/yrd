@@ -76,10 +76,10 @@ def install():
         yield '[+] already installed, skipping'
 
     yield '[*] checking folders for internal files'
-    for folder in [YRD_FOLDER, YRD_PEERS]:
-        if not os.path.exists(folder):
-            yield '[*] creating ' + folder
-            os.mkdir(folder, 0700)
+    for folder in [(YRD_FOLDER, 710), (YRD_PEERS, 770)]:
+    if not os.path.exists(folder[0]):
+        yield '[*] creating ' + folder[0]
+        os.mkdir(folder[0], folder[1])
 
     yield '[*] checking cjdroute.conf'
     if not os.path.exists(CJDROUTE_CONF):
