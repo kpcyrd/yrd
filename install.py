@@ -73,7 +73,7 @@ def main():
     yield '[*] checking cjdroute.conf'
     if not os.path.exists(yrd.CJDROUTE_CONF):
         yield '[*] generating cjdroute'
-        conf = check_output(['cjdroute', '--genconf'])
+        conf = check_output(['cjdroute', '--genconf', '--eth'])
 
         with open(yrd.CJDROUTE_CONF, 'w') as f:
             f.write(conf)
