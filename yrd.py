@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from subprocess import call, Popen, PIPE, check_output
+from subprocess import Popen, PIPE, check_output
 from argh import *
 import itertools
 import socket
@@ -9,87 +9,9 @@ import json
 import time
 import os
 
-CJDNS_GIT_REPO = 'https://github.com/cjdelisle/cjdns.git'
-CJDNS_CLONE_DIR = '/opt/cjdns'
-
-YRD_GIT_REPO = 'https://github.com/kpcyrd/yrd.git'
-YRD_CLONE_DIR = '/opt/yrd'
 YRD_FOLDER = '/var/lib/yrd'
 YRD_PEERS = '/var/lib/yrd/peers.d'
 CJDROUTE_CONF = os.environ.get('CJDROUTE_CONF', '/var/lib/yrd/cjdroute.conf')
-
-
-def install():
-    'install yrd and cjdns on your box'
-
-    yield '[*] checking permissions'
-    if os.geteuid():
-        yield '[-] you need to be root'
-        return
-
-    yield '[*] checking if we have git and gcc'
-    if call(['which', 'git']) or call(['which', 'gcc']):
-        yield '[/] somethings missing, checking if we can install it'
-        if not call(['which', 'apt-get']):
-            yield '[*] installing what\'s missing'
-
-            if call(['apt-get', 'install', 'build-essential', 'git']):
-                yield '[-] installation failed, please install them yourself'
-                return
-        else:
-            yield '[-] we can\'t do this automatically on your system'
-            return
-
-    yield '[*] checking if cjdroute is there'
-    if call(['which', 'cjdroute']):
-        yield '[/] not found, continuing'
-
-        if not os.path.exists(CJDNS_CLONE_DIR):
-            yield '[*] cloning cjdns'
-            if call(['git', 'clone', CJDNS_GIT_REPO, CJDNS_CLONE_DIR]):
-                yield '[-] clone failed'
-                return
-
-        yield '[*] compiling cjdns'
-        if call(['sh', '-c', 'cd "%s" && ./do' % CJDNS_CLONE_DIR]):
-            yield '[-] compile failed'
-
-        yield '[*] creating symlink'
-        os.symlink(os.path.join(CJDNS_CLONE_DIR, 'cjdroute'),
-                   '/usr/bin/cjdroute')
-    else:
-        yield '[+] already installed, skipping'
-
-    yield '[*] checking if yrd is in your path'
-    if call(['which', 'yrd']):
-        yield '[/] not in your path, doing a proper install from scratch'
-        if not os.path.exists(YRD_CLONE_DIR):
-            yield '[*] cloning yrd'
-            if call(['git', 'clone', YRD_GIT_REPO, YRD_CLONE_DIR]):
-                yield '[-] clone failed'
-                return
-
-        yield '[*] creating symlink'
-        os.symlink(os.path.join(YRD_CLONE_DIR, 'yrd'),
-                   '/usr/bin/yrd')
-    else:
-        yield '[+] already installed, skipping'
-
-    yield '[*] checking folders for internal files'
-    for folder in [(YRD_FOLDER, 710), (YRD_PEERS, 770)]:
-        if not os.path.exists(folder[0]):
-            yield '[*] creating ' + folder[0]
-            os.mkdir(folder[0], folder[1])
-
-    yield '[*] checking cjdroute.conf'
-    if not os.path.exists(CJDROUTE_CONF):
-        yield '[*] generating cjdroute'
-        conf = check_output(['cjdroute', '--genconf'])
-
-        with open(CJDROUTE_CONF, 'w') as f:
-            f.write(conf)
-
-    yield '[+] installation complete'
 
 
 @wrap_errors([KeyboardInterrupt, IOError])
@@ -496,7 +418,7 @@ def nf_announce(tracker, password, contact, oneshot=False):
 
 
 parser = ArghParser()
-parser.add_commands([install, start, addr, n, ping, tr, r, uplinks, whois])
+parser.add_commands([start, addr, n, ping, tr, r, uplinks, whois])
 parser.add_commands([peer_auth, peer_add, peer_ls, peer_remove],
                     namespace='peer', title='ctrl peers')
 parser.add_commands([nf_get, nf_peer, nf_announce],
