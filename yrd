@@ -16,7 +16,7 @@ YRD_GIT_REPO = 'https://github.com/kpcyrd/yrd.git'
 YRD_CLONE_DIR = '/opt/yrd'
 YRD_FOLDER = '/var/lib/yrd'
 YRD_PEERS = '/var/lib/yrd/peers.d'
-CJDROUTE_CONF = '/var/lib/yrd/cjdroute.conf'
+CJDROUTE_CONF = os.environ.get('CJDROUTE_CONF', '/var/lib/yrd/cjdroute.conf')
 
 
 def install():
