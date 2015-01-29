@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 from subprocess import Popen, PIPE, check_output
 from argh import *
 import itertools
