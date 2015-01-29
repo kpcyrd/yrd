@@ -9,8 +9,8 @@ import json
 import time
 import os
 
-YRD_FOLDER = '/var/lib/yrd'
-YRD_PEERS = '/var/lib/yrd/peers.d'
+YRD_FOLDER = os.environ.get('YRD_FOLDER', '/var/lib/yrd')
+YRD_PEERS = os.path.join(YRD_FOLDER, 'peers.d/')
 CJDROUTE_CONF = os.environ.get('CJDROUTE_CONF', '/var/lib/yrd/cjdroute.conf')
 
 
