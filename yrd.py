@@ -234,19 +234,44 @@ def uplinks(ip, trace=False):
     c.disconnect()
 
 
-@wrap_errors([socket.error])
-def whois(ip):
+@arg('-b', '--hub', help='query hub.hyperboria.net')
+@wrap_errors([socket.error, KeyboardInterrupt])
+def whois(ip, hub=False):
     'asks the remote server for whois information'
-    c = socket.create_connection((ip, 43))
-    c.send("%s\r\n" % ip)
-    while True:
-        data = c.recv(4096)
-        if not data:
-            break
-        for line in data.split('\n'):
-            line = line.rstrip()
-            yield repr(line)[1:-1]
-    c.close()
+    if hub:
+        import requests
+        j = requests.get('http://hub.hyperboria.net/api/0/nodeinfo/%s.json' % ip).json
+        if not type(j) is list:
+            j = j()
+
+        def show(path, x):
+            if type(x) is dict:
+                for a, b in x.items():
+                    for line in show('%s/%s' % (path, a), b):
+                        yield line
+            elif type(x) is list:
+                for a, b in enumerate(x):
+                    for line in show('%s/%s' % (path, a), b):
+                        yield line
+            else:
+                yield ('%s: %s' % (path, x)).lstrip('/')
+
+        yield '% hub.hyperboria.net whois information'
+        yield '%'
+
+        for line in show('', j):
+            yield line
+    else:
+        c = socket.create_connection((ip, 43))
+        c.send("%s\r\n" % ip)
+        while True:
+            data = c.recv(4096)
+            if not data:
+                break
+            for line in data.split('\n'):
+                line = line.rstrip()
+                yield repr(line)[1:-1]
+        c.close()
 
 
 @named('auth')
