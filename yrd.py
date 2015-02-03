@@ -151,8 +151,7 @@ def r(follow=False):
 @wrap_errors([socket.error, IOError])
 def n(neighbours=False):
     'shows your neighbours'
-    conf = utils.load_conf(CJDROUTE_CONF)
-    c = cjdns.connect(password=conf['admin']['password'])
+    c = cjdns.connect()
 
     STAT_FORMAT = '%s %19s  v%-2d  %9d %9d  %12s  %d/%d/%d  '
     nodestore = list(c.dumpTable())
