@@ -297,11 +297,12 @@ def whois(ip, hub=False):
 
 
 @named('auth')
+@arg('password', nargs='?', help='Set peering password')
 @arg('-l', '--live', help='Don\'t write to disk')
 @arg('-c', '--cjdroute', help='Show cjdroute output only')
 @arg('-y', '--yrd', help='Show yrd output only')
 @wrap_errors([socket.error, IOError])
-def peer_auth(name, live=False, cjdroute=False, yrd=False):
+def peer_auth(name, password, live=False, cjdroute=False, yrd=False):
     'add a password for inbound connections'
 
     if '/' in name:
@@ -313,7 +314,8 @@ def peer_auth(name, live=False, cjdroute=False, yrd=False):
         with open(path) as f:
             password = json.load(f)['password']
     else:
-        password = utils.generate_key(31)
+        if not password:
+            password = utils.generate_key(31)
 
         info = {
             'type': 'in',
