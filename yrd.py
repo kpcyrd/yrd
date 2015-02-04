@@ -7,6 +7,7 @@ import cjdns
 import utils
 import json
 import time
+import sys
 import os
 
 YRD_FOLDER = os.environ.get('YRD_FOLDER', '/var/lib/yrd')
@@ -147,13 +148,14 @@ def r(follow=False):
 
 
 @arg('-n', '--neighbours', help='show neighbours peers')
+@arg('-b', '--bw', help='monitor bandwidth')
 @aliases('neighbours')
-@wrap_errors([socket.error, IOError])
-def n(neighbours=False):
+@wrap_errors([socket.error, IOError, KeyboardInterrupt])
+def n(neighbours=False, bw=False):
     'shows your neighbours'
     c = cjdns.connect()
 
-    STAT_FORMAT = '%s %19s  v%-2d  %9d %9d  %12s  %d/%d/%d  '
+    STAT_FORMAT = '%s %19s  v%-2d  %9s %9s  %12s  %d/%d/%d  '
     nodestore = list(c.dumpTable())
 
     connections = {}
@@ -169,40 +171,61 @@ def n(neighbours=False):
     except OSError:
         pass
 
-    for peer in c.peerStats():
-        result = c.nodeForAddr(peer.ip)['result']
+    stats = {}
 
-        route = utils.grep_ns(nodestore, peer.ip)
-        path = utils.get_path(route)
+    while True:
+        if bw:
+            sys.stderr.write('\x1b[2J\x1b[H')
 
-        setattr(peer, 'path', path)
+        for peer in c.peerStats():
+            result = c.nodeForAddr(peer.ip)['result']
 
-        line = STAT_FORMAT % (peer.ip, peer.path, peer.version,
-                              peer.bytesIn, peer.bytesOut, peer.state,
-                              peer.duplicates, peer.lostPackets,
-                              peer.receivedOutOfRange)
+            route = utils.grep_ns(nodestore, peer.ip)
+            path = utils.get_path(route)
 
-        if hasattr(peer, 'user'):
-            line += repr(peer.user)
-        elif peer.publicKey in connections:
-            line += repr(connections[peer.publicKey])
+            setattr(peer, 'path', path)
 
-        yield line
+            if bw:
+                entry = stats.get(peer.ip, (peer.bytesIn, peer.bytesOut))
+                stats[peer.ip] = (peer.bytesIn, peer.bytesOut)
+                entry = [
+                    utils.speed(peer.bytesIn - entry[0]),
+                    utils.speed(peer.bytesOut - entry[1])
+                ]
+            else:
+                entry = (peer.bytesIn, peer.bytesOut)
 
-        if neighbours:
-            for i in range(result['linkCount']):
-                link = c.getLink(peer.ip, i)
+            line = STAT_FORMAT % (peer.ip, peer.path, peer.version,
+                                  entry[0], entry[1], peer.state,
+                                  peer.duplicates, peer.lostPackets,
+                                  peer.receivedOutOfRange)
 
-                if link and 'child' in link['result']:
-                    child = link['result']['child']
-                    route = utils.grep_ns(nodestore, child)
+            if hasattr(peer, 'user'):
+                line += repr(peer.user)
+            elif peer.publicKey in connections:
+                line += repr(connections[peer.publicKey])
 
-                    version = utils.get_version(route)
-                    path = utils.get_path(route)
+            yield line
 
-                    yield '   %s   %s  v%s' % (child, path, version)
-                else:
-                    yield '   -'
+            if neighbours:
+                for i in range(result['linkCount']):
+                    link = c.getLink(peer.ip, i)
+
+                    if link and 'child' in link['result']:
+                        child = link['result']['child']
+                        route = utils.grep_ns(nodestore, child)
+
+                        version = utils.get_version(route)
+                        path = utils.get_path(route)
+
+                        yield '   %s   %s  v%s' % (child, path, version)
+                    else:
+                        yield '   -'
+
+        if not bw:
+            break
+
+        time.sleep(1)
 
     c.disconnect()
 

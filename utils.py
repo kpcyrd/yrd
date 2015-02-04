@@ -57,3 +57,12 @@ def load_conf(path):
         return json.loads(p.communicate(conf)[0])
     except ValueError:
         raise Exception('failed to load cjdroute.conf as json')
+
+
+def speed(b):
+    for unit in ['B', 'Kb', 'Mb', 'Gb', 'Tb']:
+        if b < 1024:
+            break
+        b = round(b / 1024, 2)
+
+    return '%d %s/s' % (b, unit)
