@@ -454,7 +454,7 @@ def wrbt_seek():
 
 
 @named('confirm')
-def wrbt_confirm(url):
+def wrbt_confirm(name, url):
     'confirm a peering request'
     import wrbt
     request = wrbt.decode(url)
@@ -471,17 +471,21 @@ def wrbt_confirm(url):
     yield wrbt.confirm(request, (host, port), publicKey, password)
 
 
+@arg('-d', '--display', help='display only')
 @named('import')
-def wrbt_import(pk, url):
+def wrbt_import(pk, url, display=False):
     'import a peering offer'
     import wrbt
     offer = wrbt.decode(url)
     msg = wrbt.decrypt(pk, offer)
 
-    for addr, creds in msg['credentials'].items():
-        name = addr.split(':')[0]
-        peer_add(name, addr, creds['publicKey'], creds['password'])
-        yield '[+] peered with %s' % addr
+    if display:
+        yield msg
+    else:
+        for addr, creds in msg['credentials'].items():
+            name = addr.split(':')[0]
+            peer_add(name, addr, creds['publicKey'], creds['password'])
+            yield '[+] peered with %s' % addr
 
 
 parser = ArghParser()
