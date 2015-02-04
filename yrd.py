@@ -301,8 +301,9 @@ def whois(ip, hub=False):
 @arg('-l', '--live', help='Don\'t write to disk')
 @arg('-c', '--cjdroute', help='Show cjdroute output only')
 @arg('-y', '--yrd', help='Show yrd output only')
+@arg('-j', '--json', dest='json_output', help='Show json output only')
 @wrap_errors([socket.error, IOError])
-def peer_auth(name, password, live=False, cjdroute=False, yrd=False):
+def peer_auth(name, password, live=False, cjdroute=False, yrd=False, json_output=False):
     'add a password for inbound connections'
 
     if '/' in name:
@@ -335,12 +336,16 @@ def peer_auth(name, password, live=False, cjdroute=False, yrd=False):
     publicKey = conf['publicKey']
     port = conf['interfaces']['UDPInterface'][0]['bind'].split(':')[1]
 
-    if (not cjdroute and not yrd) or cjdroute:
-        yield utils.to_credstr(utils.get_ip(), port, publicKey, password)
-    if not cjdroute and not yrd:
-        yield ''
-    if (not cjdroute and not yrd) or yrd:
-        yield 'yrd peer add namehere %s:%s %s %s' % (utils.get_ip(), port,
+    if json_output:
+        yield json.dumps({'ip': utils.get_ip(), 'port': port,
+                         'pk': publicKey, 'password': password})
+    else:
+        if (not cjdroute and not yrd) or cjdroute:
+            yield utils.to_credstr(utils.get_ip(), port, publicKey, password)
+        if not cjdroute and not yrd:
+            yield ''
+        if (not cjdroute and not yrd) or yrd:
+            yield 'yrd peer add namehere %s:%s %s %s' % (utils.get_ip(), port,
                                                      publicKey, password)
 
 
