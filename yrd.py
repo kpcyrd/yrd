@@ -25,7 +25,7 @@ def start():
     c = cjdns.connect(password=conf['admin']['password'])
 
     for peer in os.listdir(YRD_PEERS):
-        yield '[*] adding %r' % peer
+        yield '[*] adding %r (%s)' % (peer, info['type'])
         try:
             with open(os.path.join(YRD_PEERS, peer)) as f:
                 info = json.load(f)
@@ -33,7 +33,10 @@ def start():
             yield '[-] invalid json'
         else:
             if info['type'] == 'in':
-                c.addPassword(info['name'], info['password'])
+                try:
+                    c.addPassword(info['name'], info['password'])
+                except KeyError:
+                    yield '[-] key error'
             elif info['type'] == 'out':
                 addr = utils.dns_resolve(info['addr'])
                 c.udpBeginConnection(str(addr), str(info['pk']),
