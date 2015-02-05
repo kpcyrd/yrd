@@ -1,9 +1,8 @@
-import nacl.secret
-import nacl.utils
-from nacl.public import PublicKey, PrivateKey, Box
-from nacl.encoding import Base64Encoder
+import libnacl
+import libnacl.utils
 from urlparse import urlparse, parse_qs
 from urllib import urlencode
+from base64 import b64encode, b64decode
 import json
 
 WRBT_VERSION = 1
@@ -20,33 +19,33 @@ def decode(url):
 
 
 def request():
-    pk = PrivateKey.generate()
-    query = {'type': 'peer', 'interface': 'udp', 'pk': encode(pk.public_key),
+    my_public, my_private = libnacl.crypto_box_keypair()
+    query = {'type': 'peer', 'interface': 'udp', 'pk': b64encode(my_public),
              'wrbtVersion': WRBT_VERSION}
     url = PREFIX + '#' + urlencode(query)
-    return url, encode(pk)
+    return url, b64encode(my_private)
 
 
 def confirm(request, addr, publicKey, password):
-    public = PublicKey(request['pk'][0], encoder=Base64Encoder)
+    her_public = b64decode(request['pk'][0])
     response = {'credentials': {('%s:%s' % addr): {'publicKey': publicKey,
                 'password': password}}}
     response = json.dumps(response)
 
-    private = PrivateKey.generate()
-    box = Box(private, public)
-    nonce = nacl.utils.random(Box.NONCE_SIZE)
-    encrypted = box.encrypt(response, nonce)
+    my_public, my_private = libnacl.crypto_box_keypair()
+    nonce = libnacl.utils.rand_nonce()
+    encrypted = b64encode(libnacl.crypto_box(response, nonce, her_public, my_private))
 
     offer = {'type': 'credentials', 'interface': 'udp', 'message': encrypted,
-             'pk': encode(private.public_key), 'wrbtVersion': WRBT_VERSION}
+             'n': b64encode(nonce), 'pk': b64encode(my_public),
+             'wrbtVersion': WRBT_VERSION}
 
     return PREFIX + '#' + urlencode(offer)
 
 
 def decrypt(pk, offer):
-    private = PrivateKey(pk, encoder=Base64Encoder)
-    public = PublicKey(offer['pk'][0], encoder=Base64Encoder)
+    my_private = b64decode(pk)
+    her_public = b64decode(offer['pk'][0])
 
-    box = Box(private, public)
-    return json.loads(box.decrypt(offer['message'][0]))
+    msg = libnacl.crypto_box_open(b64decode(offer['message'][0]), b64decode(offer['n'][0]), her_public, my_private)
+    return json.loads(msg)
