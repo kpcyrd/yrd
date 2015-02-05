@@ -1,2 +1,3 @@
 argh
 requests
+libnacl

@@ -474,12 +474,58 @@ def nf_announce(tracker, password, contact, oneshot=False):
         time.sleep(120)
 
 
+@named('seek')
+def wrbt_seek():
+    'create a peering request'
+    import wrbt
+    url, pk = wrbt.request()
+    yield 'Import offer: yrd wrbt import "%s" <offer>' % pk
+    yield url
+
+
+@named('confirm')
+def wrbt_confirm(name, url):
+    'confirm a peering request'
+    import wrbt
+    request = wrbt.decode(url)
+
+    conf = utils.load_conf(CJDROUTE_CONF)
+
+    host = utils.get_ip()
+    port = conf['interfaces']['UDPInterface'][0]['bind'].split(':')[1]
+    publicKey = conf['publicKey']
+    password = utils.generate_key(31)
+
+    # TODO: authorize
+
+    yield wrbt.confirm(request, (host, port), publicKey, password)
+
+
+@arg('-d', '--display', help='display only')
+@named('import')
+def wrbt_import(pk, url, display=False):
+    'import a peering offer'
+    import wrbt
+    offer = wrbt.decode(url)
+    msg = wrbt.decrypt(pk, offer)
+
+    if display:
+        yield msg
+    else:
+        for addr, creds in msg['credentials'].items():
+            name = addr.split(':')[0]
+            peer_add(name, addr, creds['publicKey'], creds['password'])
+            yield '[+] peered with %s' % addr
+
+
 parser = ArghParser()
 parser.add_commands([start, addr, n, ping, tr, r, uplinks, whois])
 parser.add_commands([peer_auth, peer_add, peer_ls, peer_remove],
                     namespace='peer', title='ctrl peers')
 parser.add_commands([nf_get, nf_peer, nf_announce],
                     namespace='nf', title='ctrl inet auto-peering')
+parser.add_commands([wrbt_seek, wrbt_confirm, wrbt_import],
+                    namespace='wrbt', title='wrbt implementation')
 
 if __name__ == '__main__':
     dispatch(parser)
