@@ -25,7 +25,7 @@ def start():
     c = cjdns.connect(password=conf['admin']['password'])
 
     for peer in os.listdir(YRD_PEERS):
-        yield '[*] adding %r (%s)' % (peer, info['type'])
+        yield '[*] adding %r' % peer
         try:
             with open(os.path.join(YRD_PEERS, peer)) as f:
                 info = json.load(f)
