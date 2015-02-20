@@ -1,5 +1,5 @@
 #!/usr/bin/env python2
-from subprocess import call
+from subprocess import call, check_output
 import yrd
 import os
 
