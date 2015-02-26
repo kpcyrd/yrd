@@ -266,8 +266,7 @@ def whois(ip, hub=False):
     'asks the remote server for whois information'
     if hub:
         import requests
-        j = requests.get('http://hub.hyperboria.net/api/0/nodeinfo/%s.json' % ip).json
-        print(j)
+        j = requests.get('http://api.hyperboria.net/v0/node/info.json?ip=%s' % ip).json
         if not type(j) is list:
             j = j()
 
@@ -283,12 +282,15 @@ def whois(ip, hub=False):
             else:
                 yield ('%s: %s' % (path, x)).lstrip('/')
 
-        yield '% hub.hyperboria.net whois information'
+        yield '%s hub.hyperboria.net whois information' % ip
         yield '%'
 
         for line in show('', j):
             yield line
     else:
+        yield '%s (direct connect) whois information' % ip
+        yield '%'
+
         c = socket.create_connection((ip, 43))
         c.send("%s\r\n" % ip)
         while True:
