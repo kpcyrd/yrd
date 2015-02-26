@@ -13,11 +13,12 @@ import os
 YRD_FOLDER = os.environ.get('YRD_FOLDER', '/var/lib/yrd')
 YRD_PEERS = os.path.join(YRD_FOLDER, 'peers.d/')
 CJDROUTE_CONF = os.environ.get('CJDROUTE_CONF', '/var/lib/yrd/cjdroute.conf')
+CJDROUTE_BIN = os.environ.get('CJDROUTE_BIN', 'cjdroute')
 
 
 @wrap_errors([KeyboardInterrupt, IOError])
 def start():
-    conf = utils.load_conf(CJDROUTE_CONF)
+    conf = utils.load_conf(CJDROUTE_CONF, CJDROUTE_BIN)
 
     p = Popen(['cjdroute'], stdin=PIPE)
     p.communicate(json.dumps(conf))
@@ -48,7 +49,7 @@ def start():
 @wrap_errors([socket.error, IOError])
 def addr():
     'show infos about your node'
-    conf = utils.load_conf(CJDROUTE_CONF)
+    conf = utils.load_conf(CJDROUTE_CONF, CJDROUTE_BIN)
     c = cjdns.connect(password=conf['admin']['password'])
 
     res = c.nodeForAddr()['result']
@@ -70,7 +71,7 @@ def addr():
 @wrap_errors([KeyboardInterrupt, socket.error, IOError])
 def ping(ip, count=0, switch=False):
     'ping a node'
-    conf = utils.load_conf(CJDROUTE_CONF)
+    conf = utils.load_conf(CJDROUTE_CONF, CJDROUTE_BIN)
     c = cjdns.connect(password=conf['admin']['password'])
 
     ping = c.switchPing if switch else c.routerPing
@@ -237,7 +238,7 @@ def n(neighbours=False, bw=False):
 @wrap_errors([IOError])
 def uplinks(ip, trace=False):
     'show uplinks of a node'
-    conf = utils.load_conf(CJDROUTE_CONF)
+    conf = utils.load_conf(CJDROUTE_CONF, CJDROUTE_BIN)
     c = cjdns.connect(password=conf['admin']['password'])
     nodestore = list(c.dumpTable())
 
@@ -266,6 +267,7 @@ def whois(ip, hub=False):
     if hub:
         import requests
         j = requests.get('http://hub.hyperboria.net/api/0/nodeinfo/%s.json' % ip).json
+        print(j)
         if not type(j) is list:
             j = j()
 
@@ -331,7 +333,7 @@ def peer_auth(name, password, live=False, cjdroute=False, yrd=False, json_output
             with open(path, 'w') as f:
                 f.write(json.dumps(info))
 
-    conf = utils.load_conf(CJDROUTE_CONF)
+    conf = utils.load_conf(CJDROUTE_CONF, CJDROUTE_BIN)
     c = cjdns.connect(password=conf['admin']['password'])
     c.addPassword(name, password)
     c.disconnect()
@@ -356,7 +358,7 @@ def peer_auth(name, password, live=False, cjdroute=False, yrd=False, json_output
 @wrap_errors([IOError])
 def peer_ls():
     'list passwords for inbound connections'
-    conf = utils.load_conf(CJDROUTE_CONF)
+    conf = utils.load_conf(CJDROUTE_CONF, CJDROUTE_BIN)
     c = cjdns.connect(password=conf['admin']['password'])
     for user in c.listPasswords()['users']:
         yield user
@@ -393,7 +395,7 @@ def peer_add(name, addr, pk, password, live=False):
         with open(path, 'w') as f:
             f.write(json.dumps(info))
 
-    conf = utils.load_conf(CJDROUTE_CONF)
+    conf = utils.load_conf(CJDROUTE_CONF, CJDROUTE_BIN)
 
     addr = utils.dns_resolve(addr)
 
@@ -416,7 +418,7 @@ def peer_remove(user):
     else:
         yield 'user not found'
 
-    conf = utils.load_conf(CJDROUTE_CONF)
+    conf = utils.load_conf(CJDROUTE_CONF, CJDROUTE_BIN)
     c = cjdns.connect(password=conf['admin']['password'])
     c.removePassword(user)
     c.disconnect()
@@ -452,7 +454,7 @@ def nf_announce(tracker, password, contact, oneshot=False):
     'announce yourself as public peer'
     import nf
 
-    conf = utils.load_conf(CJDROUTE_CONF)
+    conf = utils.load_conf(CJDROUTE_CONF, CJDROUTE_BIN)
 
     addr = conf['interfaces']['UDPInterface'][0]['bind']
     peer = {
@@ -492,7 +494,7 @@ def wrbt_confirm(name, url):
     import wrbt
     request = wrbt.decode(url)
 
-    conf = utils.load_conf(CJDROUTE_CONF)
+    conf = utils.load_conf(CJDROUTE_CONF, CJDROUTE_BIN)
 
     host = utils.get_ip()
     port = conf['interfaces']['UDPInterface'][0]['bind'].split(':')[1]
