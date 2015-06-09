@@ -282,13 +282,13 @@ def whois(ip, hub=False):
             else:
                 yield ('%s: %s' % (path, x)).lstrip('/')
 
-        yield '%s hub.hyperboria.net whois information' % ip
+        yield '%% %s hub.hyperboria.net whois information' % ip
         yield '%'
 
         for line in show('', j):
             yield line
     else:
-        yield '%s (direct connect) whois information' % ip
+        yield '%% %s (direct connect) whois information' % ip
         yield '%'
 
         c = socket.create_connection((ip, 43))
