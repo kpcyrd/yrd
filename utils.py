@@ -48,12 +48,12 @@ def dns_resolve(addr):
     return ':'.join(addr)
 
 
-def load_conf(path):
+def load_conf(conf, bin):
     try:
-        with open(path) as f:
+        with open(conf) as f:
             conf = f.read()
 
-        p = Popen(['cjdroute', '--cleanconf'], stdin=PIPE, stdout=PIPE)
+        p = Popen([bin, '--cleanconf'], stdin=PIPE, stdout=PIPE)
         return json.loads(p.communicate(conf)[0])
     except ValueError:
         raise Exception('failed to load cjdroute.conf as json')

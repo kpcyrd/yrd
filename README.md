@@ -61,6 +61,12 @@ fc4b:2571:aa1a:d4d1:67d6:2d57:c2d2:a329 0000.0000.0000.1935  v13         0   492
    fc42:0af2:018d:3505:7506:d730:49ae:2ffa   0000.0000.000a.e935  v13
    fccd:390e:90fb:e785:f26b:18dd:6344:d182   0000.0000.000a.6935  v13
 ```
+### Utilize Nightfall
+[Nightfall](https://github.com/kpcyrd/nightfall) is a cjdns inet auto-peering tracker.
+
+```
+$ ./yrd.py nf get http://nf.rxv.cc:7473/promisc/seek/
+```
 
 ### Show bandwidth
 ```
