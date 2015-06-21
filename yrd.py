@@ -266,7 +266,8 @@ def whois(ip, hub=False):
     'asks the remote server for whois information'
     if hub:
         import requests
-        j = requests.get('http://api.hyperboria.net/v0/node/info.json?ip=%s' % ip).json
+        url = 'http://api.hyperboria.net/v0/node/info.json?ip=%s' % ip
+        j = requests.get(url).json
         if not type(j) is list:
             j = j()
 
@@ -310,7 +311,8 @@ def whois(ip, hub=False):
 @arg('-y', '--yrd', help='Show yrd output only')
 @arg('-j', '--json', dest='json_output', help='Show json output only')
 @wrap_errors([socket.error, IOError])
-def peer_auth(name, password, live=False, cjdroute=False, yrd=False, json_output=False):
+def peer_auth(name, password, live=False, cjdroute=False, yrd=False,
+              json_output=False):
     'add a password for inbound connections'
 
     if '/' in name:
@@ -353,7 +355,7 @@ def peer_auth(name, password, live=False, cjdroute=False, yrd=False, json_output
             yield ''
         if (not cjdroute and not yrd) or yrd:
             yield 'yrd peer add namehere %s:%s %s %s' % (utils.get_ip(), port,
-                                                     publicKey, password)
+                                                         publicKey, password)
 
 
 @named('ls')

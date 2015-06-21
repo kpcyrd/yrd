@@ -34,7 +34,8 @@ def confirm(request, addr, publicKey, password):
 
     my_public, my_private = libnacl.crypto_box_keypair()
     nonce = libnacl.utils.rand_nonce()
-    encrypted = b64encode(libnacl.crypto_box(response, nonce, her_public, my_private))
+    encrypted = b64encode(libnacl.crypto_box(response, nonce,
+                                             her_public, my_private))
 
     offer = {'type': 'credentials', 'interface': 'udp', 'message': encrypted,
              'n': b64encode(nonce), 'pk': b64encode(my_public),
@@ -47,5 +48,7 @@ def decrypt(pk, offer):
     my_private = b64decode(pk)
     her_public = b64decode(offer['pk'][0])
 
-    msg = libnacl.crypto_box_open(b64decode(offer['message'][0]), b64decode(offer['n'][0]), her_public, my_private)
+    msg = b64decode(offer['message'][0])
+    nonce = b64decode(offer['n'][0])
+    msg = libnacl.crypto_box_open(msg, nonce, her_public, my_private)
     return json.loads(msg)
