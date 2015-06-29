@@ -19,7 +19,7 @@ If you're running arch, checkout the [package](https://aur.archlinux.org/package
     apt-get install python-pip
     pip install -r requirements.txt
     # finally, install yrd
-    ./yrd install
+    ./install.py
     # if you're using systemd
     cp init/yrd.service /etc/systemd/system/
     systemctl enable yrd
