@@ -26,8 +26,8 @@ def to_credstr(ip, port, publicKey, password, **kwargs):
     return json.dumps({addr: kwargs})[1:-1]
 
 
-def grep_ns(ns, ip):
-    return [x for x in ns if x['ip'] == ip]
+def grep_ns(ns, addr):
+    return [x for x in ns if x['addr'] == addr]
 
 
 def get_from_route(route, key, default):

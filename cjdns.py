@@ -177,6 +177,10 @@ def Base32_decode(input):
     return buffer(output, 0, outputIndex)
 
 
+def addr2ip(addr):
+    return pk2ipv6(addr[24:])
+
+
 def pk2ipv6(pubKey):
     if pubKey[-2:] != ".k":
         raise ValueError("key does not end with .k")

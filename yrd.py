@@ -184,7 +184,7 @@ def n(neighbours=False, bw=False):
         for peer in c.peerStats():
             result = c.nodeForAddr(peer.ip)['result']
 
-            route = utils.grep_ns(nodestore, peer.ip)
+            route = utils.grep_ns(nodestore, peer.addr)
             path = utils.get_path(route)
 
             setattr(peer, 'path', path)
@@ -219,10 +219,11 @@ def n(neighbours=False, bw=False):
                         child = link['result']['child']
                         route = utils.grep_ns(nodestore, child)
 
+                        ip = cjdns.addr2ip(child)
                         version = utils.get_version(route)
                         path = utils.get_path(route)
 
-                        yield '   %s   %s  v%s' % (child, path, version)
+                        yield '   %s   %s  v%s' % (ip, path, version)
                     else:
                         yield '   -'
 
