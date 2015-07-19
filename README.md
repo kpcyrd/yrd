@@ -14,11 +14,8 @@ If you're running arch, checkout the [package](https://aur.archlinux.org/package
     git clone https://github.com/kpcyrd/yrd.git
     cd yrd
     # install dependencies
-    apt-get install python-argh
-    # if that fails, install via pip
-    apt-get install python-pip
-    pip install -r requirements.txt
-    # finally, install yrd
+    apt-get install python-argh python-requests
+    # install yrd
     ./install.py
     # if you're using systemd
     cp init/yrd.service /etc/systemd/system/
@@ -27,6 +24,7 @@ If you're running arch, checkout the [package](https://aur.archlinux.org/package
     # if you're using init-sysv
     cp init/yrd.sh /etc/init.d/yrd
     update-rc.d yrd enable
+    service yrd start
 
 Sample Output
 -------------
