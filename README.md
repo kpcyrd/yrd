@@ -66,13 +66,6 @@ fc4b:2571:aa1a:d4d1:67d6:2d57:c2d2:a329 0000.0000.0000.1935  v13         0   492
 $ ./yrd.py nf get http://nf.rxv.cc:7473/promisc/seek/
 ```
 
-### Show bandwidth
-```
-$ yrd n -b
-fce0:cc9d:a435:2247:1b61:9dc5:1ef1:dd83 0000.0000.0000.0015  v15     3 Kb/s    2 Kb/s   ESTABLISHED  0/11/0  'Local Peers'
-fc56:2edc:3842:ff64:b57a:dc03:ce9c:fa36 0000.0000.0000.0013  v15    580 B/s   948 B/s   ESTABLISHED  0/7/0  'Local Peers'
-```
-
 ### Ping a node (5 times)
 ```
 $ yrd ping fc42:0af2:018d:3505:7506:d730:49ae:2ffa -c 5
