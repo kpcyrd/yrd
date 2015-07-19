@@ -16,8 +16,9 @@ CJDROUTE_CONF = os.environ.get('CJDROUTE_CONF', os.path.join(YRD_FOLDER, 'cjdrou
 CJDROUTE_BIN = os.environ.get('CJDROUTE_BIN', 'cjdroute')
 
 
+@arg('--boot', help='bootstraps network access')
 @wrap_errors([KeyboardInterrupt, IOError])
-def start():
+def start(boot=False):
     conf = utils.load_conf(CJDROUTE_CONF, CJDROUTE_BIN)
 
     p = Popen(['cjdroute'], stdin=PIPE)
@@ -44,6 +45,12 @@ def start():
                                      str(info['password']))
 
     c.disconnect()
+
+
+def boot(peers):
+    'bootstraps network access'
+    import bootstrap as boot
+    nf_peer(boot.DESIRED, [x + boot.TOPIC + '/seek/' for x in bootstrap.trackers])
 
 
 @wrap_errors([socket.error, IOError])
@@ -529,7 +536,7 @@ def wrbt_import(pk, url, display=False):
 
 
 parser = ArghParser()
-parser.add_commands([start, addr, n, ping, tr, r, uplinks, whois])
+parser.add_commands([start, boot, addr, n, ping, tr, r, uplinks, whois])
 parser.add_commands([peer_auth, peer_add, peer_ls, peer_remove],
                     namespace='peer', title='ctrl peers')
 parser.add_commands([nf_get, nf_peer, nf_announce],
