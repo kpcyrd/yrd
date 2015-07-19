@@ -1,3 +1,4 @@
+from random import shuffle
 import requests
 import utils
 import json
@@ -16,13 +17,13 @@ class DhtPeer(object):
                                 self.password, **self.kwargs)
 
 
-def request_peers(tracker):
+def request_peers(desired, tracker):
     response = requests.get(tracker).json
 
     if not type(response) is list:
         response = response()
 
-    for peer in response:
+    for peer in shuffle(response)[:desired]:
         try:
             yield DhtPeer(**peer)
         except TypeError:

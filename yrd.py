@@ -430,20 +430,20 @@ def peer_remove(user):
 
 
 @named('get')
-def nf_get(*trackers):
+def nf_get(desired, *trackers):
     'query public peers'
     import nf
     for tracker in trackers:
-        for peer in nf.request_peers(tracker):
+        for peer in nf.request_peers(desired, tracker):
             yield peer.credentialstr()
 
 
 @named('peer')
-def nf_peer(*trackers):
+def nf_peer(desired, *trackers):
     'connect to public peers'
     import nf
     for tracker in trackers:
-        for peer in nf.request_peers(tracker):
+        for peer in nf.request_peers(desired, tracker):
             addr = '%s:%d' % (peer.ip, peer.port)
             peer_add(peer.ip, addr, peer.publicKey, peer.password)
             yield '[+] peered with %s' % addr
