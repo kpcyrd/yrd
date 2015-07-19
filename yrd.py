@@ -10,9 +10,9 @@ import time
 import sys
 import os
 
-YRD_FOLDER = os.environ.get('YRD_FOLDER', '/var/lib/yrd')
+YRD_FOLDER = os.environ.get('YRD_FOLDER', '/etc/yrd')
 YRD_PEERS = os.path.join(YRD_FOLDER, 'peers.d/')
-CJDROUTE_CONF = os.environ.get('CJDROUTE_CONF', '/var/lib/yrd/cjdroute.conf')
+CJDROUTE_CONF = os.environ.get('CJDROUTE_CONF', os.path.join(YRD_FOLDER, 'cjdroute.conf'))
 CJDROUTE_BIN = os.environ.get('CJDROUTE_BIN', 'cjdroute')
 
 
