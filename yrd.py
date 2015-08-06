@@ -16,13 +16,15 @@ CJDROUTE_CONF = os.environ.get('CJDROUTE_CONF', os.path.join(YRD_FOLDER, 'cjdrou
 CJDROUTE_BIN = os.environ.get('CJDROUTE_BIN', 'cjdroute')
 
 
+@arg('--attach', help='configure running cjdroute')
 @arg('--boot', help='bootstraps network access')
 @wrap_errors([KeyboardInterrupt, IOError])
-def start(boot=False):
+def start(attach=False, boot=False):
     conf = utils.load_conf(CJDROUTE_CONF, CJDROUTE_BIN)
 
-    p = Popen(['cjdroute'], stdin=PIPE)
-    p.communicate(json.dumps(conf))
+    if not attach:
+        p = Popen(['cjdroute'], stdin=PIPE)
+        p.communicate(json.dumps(conf))
 
     c = cjdns.connect(password=conf['admin']['password'])
 
