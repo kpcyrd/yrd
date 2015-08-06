@@ -46,8 +46,11 @@ def start(boot=False):
 
     c.disconnect()
 
+    if boot:
+        bootstrap
 
-def boot(peers):
+
+def bootstrap():
     'bootstraps network access'
     import bootstrap as boot
     nf_peer(boot.DESIRED, [x + boot.TOPIC + '/seek/' for x in bootstrap.trackers])
@@ -514,7 +517,7 @@ def wrbt_import(pk, url, display=False):
 
 
 parser = ArghParser()
-parser.add_commands([start, boot, addr, n, ping, tr, r, uplinks, whois])
+parser.add_commands([start, bootstrap, addr, n, ping, tr, r, uplinks, whois])
 parser.add_commands([peer_auth, peer_add, peer_ls, peer_remove],
                     namespace='peer', title='ctrl peers')
 parser.add_commands([nf_get, nf_peer, nf_announce],
