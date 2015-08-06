@@ -58,21 +58,17 @@ def bootstrap():
     nf_peer(boot.DESIRED, [x + boot.TOPIC + '/seek/' for x in bootstrap.trackers])
 
 
+@arg('-i', '--ip', help='format as ipv6')
 @wrap_errors([socket.error, IOError])
-def addr():
-    'show infos about your node'
-    conf = utils.load_conf(CJDROUTE_CONF, CJDROUTE_BIN)
-    c = cjdns.connect(password=conf['admin']['password'])
+def a(ip=False):
+    'show address of cjdroute'
+    c = cjdns.connect()
 
     res = c.nodeForAddr()['result']
-    table = list(c.dumpTable())
-
-    yield 'addr\t\t' + res['bestParent']['ip']
-    yield 'key\t\t' + res['key']
-    yield 'version\t\tv' + str(res['protocolVersion'])
-    yield ''
-    yield 'links\t\t' + str(res['linkCount'])
-    yield 'known routes\t' + str(len(table))
+    if ip:
+        yield res['bestParent']['ip']
+    else:
+        yield 'v%s.%s.%s' % (res['protocolVersion'], res['routeLabel'], res['key'])
 
     c.disconnect()
 
@@ -519,7 +515,7 @@ def wrbt_import(pk, url, display=False):
 
 
 parser = ArghParser()
-parser.add_commands([start, bootstrap, addr, n, ping, tr, r, uplinks, whois])
+parser.add_commands([start, bootstrap, a, n, ping, tr, r, uplinks, whois])
 parser.add_commands([peer_auth, peer_add, peer_ls, peer_remove],
                     namespace='peer', title='ctrl peers')
 parser.add_commands([nf_get, nf_peer, nf_announce],

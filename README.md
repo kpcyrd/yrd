@@ -29,15 +29,10 @@ If you're running arch, checkout the [package](https://aur.archlinux.org/package
 Sample Output
 -------------
 
-### Shows infos about your node
+### Shows cjdroute ipv6
 ```
-$ yrd addr
-addr            fc29:09c3:74d3:6ce0:3381:90f6:4e05:a5e8
-key             92dyb2331kd5txjucrgwv98zq88rvcf5nnzzknu66sr7vr3pwum0.k
-version         v13
-
-links           3
-known routes    130
+$ yrd a -i
+fc29:09c3:74d3:6ce0:3381:90f6:4e05:a5e8
 ```
 
 ### Show your neighbors (peerStats)
