@@ -251,44 +251,36 @@ def uplinks(ip, trace=False):
 @wrap_errors([socket.error, KeyboardInterrupt])
 def whois(ip, hub=False):
     'asks the remote server for whois information'
+    import requests
+
     if hub:
-        import requests
         url = 'http://api.hyperboria.net/v0/node/info.json?ip=%s' % ip
-        j = requests.get(url).json
-        if not type(j) is list:
-            j = j()
-
-        def show(path, x):
-            if type(x) is dict:
-                for a, b in x.items():
-                    for line in show('%s/%s' % (path, a), b):
-                        yield line
-            elif type(x) is list:
-                for a, b in enumerate(x):
-                    for line in show('%s/%s' % (path, a), b):
-                        yield line
-            else:
-                yield ('%s: %s' % (path, x)).lstrip('/')
-
-        yield '%% %s hub.hyperboria.net whois information' % ip
-        yield '%'
-
-        for line in show('', j):
-            yield line
+        title = 'hub.hyperboria.net'
     else:
-        yield '%% %s (direct connect) whois information' % ip
-        yield '%'
+        url = 'http://[%s]/nodeinfo.json' % ip
+        title = 'nodeinfo.json'
 
-        c = socket.create_connection((ip, 43))
-        c.send("%s\r\n" % ip)
-        while True:
-            data = c.recv(4096)
-            if not data:
-                break
-            for line in data.split('\n'):
-                line = line.rstrip()
-                yield repr(line)[1:-1]
-        c.close()
+    j = requests.get(url).json
+    if not type(j) is dict:
+        j = j()
+
+    def show(path, x):
+        if type(x) is dict:
+            for a, b in x.items():
+                for line in show('%s/%s' % (path, a), b):
+                    yield line
+        elif type(x) is list:
+            for a, b in enumerate(x):
+                for line in show('%s/%s' % (path, a), b):
+                    yield line
+        else:
+            yield '%-40s: %s' % (path, x)
+
+    yield '%% %s %s whois information' % (ip, title)
+    yield '%'
+
+    for line in show('', j):
+        yield line
 
 
 @named('auth')
