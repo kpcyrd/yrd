@@ -232,6 +232,19 @@ def n(neighbours=False):
     c.disconnect()
 
 
+@arg('-n', help='number of routes displayed')
+@wrap_errors([KeyboardInterrupt])
+def top(n=25):
+    'much colors'
+    import top
+
+    s = top.Session()
+
+    while True:
+        print(s.output(r(), n))
+        time.sleep(1)
+
+
 @arg('-t', '--trace', help='')
 @wrap_errors([IOError])
 def uplinks(ip, trace=False):
@@ -518,7 +531,7 @@ def wrbt_import(pk, url, display=False):
 
 
 parser = ArghParser()
-parser.add_commands([start, bootstrap, a, n, ping, tr, r, uplinks, whois])
+parser.add_commands([start, bootstrap, a, n, ping, top, tr, r, uplinks, whois])
 parser.add_commands([peer_auth, peer_add, peer_ls, peer_remove],
                     namespace='peer', title='ctrl peers')
 parser.add_commands([nf_get, nf_peer, nf_announce],
