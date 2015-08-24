@@ -60,7 +60,7 @@ def start(attach=False, boot=False):
     c.disconnect()
 
     if boot:
-        bootstrap
+        bootstrap()
 
 
 def bootstrap():
