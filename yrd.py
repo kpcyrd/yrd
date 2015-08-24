@@ -98,7 +98,7 @@ def ping(ip, count=0, switch=False):
     for _ in xrange(count) if count else itertools.repeat(None):
         try:
             resp = ping(ip)
-        except Exception, e:
+        except Exception as e:
             resp = {'error': e}
 
         if 'error' in resp:
@@ -464,7 +464,7 @@ def nf_announce(tracker, password, contact, oneshot=False):
         try:
             if nf.announce(tracker, **peer):
                 yield '[+] Told the tracker we\'re here'
-        except (IOError, ValueError), e:
+        except (IOError, ValueError) as e:
             yield '[-] %s' % e
 
         if oneshot:
