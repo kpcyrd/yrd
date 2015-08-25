@@ -25,11 +25,21 @@ class Session(object):
         n = self.store[addr]
         return line[:40] + n.fmt(signal) + line[59:]
 
-    def output(self, lines, n):
+    def output(self, neighbours, lines, n):
+        neighbours = [x[:39] + ' ' + Node(x[40:59]).fmt() + ' ' + x[60:64] for x in neighbours]
+
         buf = list(lines)
         buf.sort(key=lambda x: x[40:59], reverse=True)
         buf = [self.fmt(line, self.update(line)) for line in buf]
-        return clear + '\n'.join(buf[:n])
+
+        output = clear
+
+        if neighbours:
+            output += '\n'.join(neighbours) + '\n\n'
+
+        output += '\n'.join(buf[:n])
+
+        return output
 
 
 class Node(object):

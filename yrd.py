@@ -232,16 +232,20 @@ def n(neighbours=False):
     c.disconnect()
 
 
+neighbours = n
+
+
 @arg('-n', help='number of routes displayed')
+@arg('-r', '--routing', help='show routing only')
 @wrap_errors([KeyboardInterrupt])
-def top(n=25):
+def top(n=25, routing=False):
     'much colors'
     import top
 
     s = top.Session()
 
     while True:
-        print(s.output(r(), n))
+        print(s.output([] if routing else neighbours(), r(), n))
         time.sleep(1)
 
 
