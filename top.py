@@ -35,7 +35,7 @@ class Session(object):
         output = clear
 
         if neighbours:
-            output += '\n'.join(neighbours) + '\n\n'
+            output += '\n'.join(neighbours) + '\n\nNodestore (%d):\n' % len(buf)
 
         output += '\n'.join(buf[:n])
 
