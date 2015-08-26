@@ -32,13 +32,11 @@ CJDROUTE_BIN = os.environ.get('CJDROUTE_BIN', 'cjdroute')
 @arg('--boot', help='bootstraps network access')
 @wrap_errors([KeyboardInterrupt, IOError])
 def start(attach=False, boot=False):
-    conf = utils.load_conf(CJDROUTE_CONF, CJDROUTE_BIN)
 
     if not attach:
         p = Popen(['cjdroute'], stdin=PIPE)
+        conf = utils.load_conf(CJDROUTE_CONF, CJDROUTE_BIN)
         p.communicate(json.dumps(conf))
-
-    c = cjdns.connect(password=conf['admin']['password'])
 
     for peer in os.listdir(YRD_PEERS):
         yield '[*] adding %r' % peer
@@ -50,15 +48,11 @@ def start(attach=False, boot=False):
         else:
             if info['type'] == 'in':
                 try:
-                    c.addPassword(info['name'], info['password'])
+                    list(peer_auth(info['name'], info['password'], live=True))
                 except KeyError:
                     yield '[-] key error'
             elif info['type'] == 'out':
-                addr = utils.dns_resolve(info['addr'])
-                c.udpBeginConnection(str(addr), str(info['pk']),
-                                     str(info['password']))
-
-    c.disconnect()
+                list(peer_add(peer, info['addr'], info['pk'], info['password'], live=True))
 
     if boot:
         bootstrap()
@@ -380,8 +374,9 @@ def peer_auth(name, password, live=False, cjdroute=False, yrd=False,
                 f.write(json.dumps(info))
 
     conf = utils.load_conf(CJDROUTE_CONF, CJDROUTE_BIN)
-    c = cjdns.connect(password=conf['admin']['password'])
-    c.addPassword(name, password)
+    c = cj.connect('127.0.0.1', 11234, conf['admin']['password'])
+    resp = c.AuthorizedPasswords_add(user=name, password=password)
+    utils.raise_on_error(resp)
     c.disconnect()
 
     publicKey = conf['publicKey']
@@ -441,12 +436,14 @@ def peer_add(name, addr, pk, password, live=False):
         with open(path, 'w') as f:
             f.write(json.dumps(info))
 
-    conf = utils.load_conf(CJDROUTE_CONF, CJDROUTE_BIN)
-
     addr = utils.dns_resolve(addr)
 
-    c = cjdns.connect(password=conf['admin']['password'])
-    c.udpBeginConnection(addr, pk, password)
+    conf = utils.load_conf(CJDROUTE_CONF, CJDROUTE_BIN)
+    c = cj.connect('127.0.0.1', 11234, conf['admin']['password'])
+    resp = c.UDPInterface_beginConnection(address=addr,
+                                          publicKey=pk,
+                                          password=password)
+    utils.raise_on_error(resp)
     c.disconnect()
 
 

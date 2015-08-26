@@ -8,6 +8,11 @@ def ts2time(ts):
     return datetime.fromtimestamp(ts).strftime('%H:%M:%S')
 
 
+def raise_on_error(resp):
+    if 'error' in resp and resp['error'] != 'none':
+        raise Exception(resp['error'])
+
+
 def generate_key(length):
     key = ''
     with open('/dev/urandom') as f:
