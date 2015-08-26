@@ -3,7 +3,8 @@ from subprocess import Popen, PIPE, check_output
 from argh import *
 import itertools
 import socket
-import cjdns
+import xcjdns as cjdns
+import cjdns as cj
 import utils
 import json
 import time
