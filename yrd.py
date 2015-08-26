@@ -250,6 +250,40 @@ def top(n=25, routing=False):
         time.sleep(1)
 
 
+@arg('-l', '--level', help='filter by log level')
+@arg('-f', '--file', help='filter by source file')
+@arg('-n', '--line', help='filter by line number')
+@wrap_errors([KeyboardInterrupt])
+def mon(level=None, file=None, line=0):
+    'monitor cjdroute'
+
+    conf = utils.load_conf(CJDROUTE_CONF, CJDROUTE_BIN)
+    c = cj.connect('127.0.0.1', 11234, conf['admin']['password'])
+
+    kwargs = {}
+
+    if level:
+        kwargs['level'] = level
+
+    if file:
+        kwargs['file'] = file
+
+    if line:
+        kwargs['line'] = line
+
+    resp = c.AdminLog_subscribe(**kwargs)
+    streamId = resp['streamId']
+
+    try:
+        while True:
+            x = c.getMessage(resp['txid'])
+            x['ftime'] = utils.ts2time(x['time'])
+            yield '{ftime} {level} {file}:{line} {message}'.format(**x)
+    except:
+        c.AdminLog_unsubscribe(streamId)
+        raise
+
+
 @arg('-t', '--trace', help='')
 @wrap_errors([IOError])
 def uplinks(ip, trace=False):
@@ -536,7 +570,7 @@ def wrbt_import(pk, url, display=False):
 
 
 parser = ArghParser()
-parser.add_commands([start, bootstrap, a, n, ping, top, tr, r, uplinks, whois])
+parser.add_commands([start, bootstrap, a, n, ping, top, mon, tr, r, uplinks, whois])
 parser.add_commands([peer_auth, peer_add, peer_ls, peer_remove],
                     namespace='peer', title='ctrl peers')
 parser.add_commands([nf_get, nf_peer, nf_announce],

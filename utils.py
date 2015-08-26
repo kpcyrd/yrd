@@ -1,6 +1,11 @@
 from subprocess import Popen, PIPE
+from datetime import datetime
 import socket
 import json
+
+
+def ts2time(ts):
+    return datetime.fromtimestamp(ts).strftime('%H:%M:%S')
 
 
 def generate_key(length):
