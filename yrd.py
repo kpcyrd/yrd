@@ -110,36 +110,6 @@ def ping(ip, count=0, switch=False):
     c.disconnect()
 
 
-@arg('-f', '--verify', help='verify the selected route')
-@wrap_errors([KeyboardInterrupt, socket.error])
-def tr(target, verify=False):
-    'traceroute a node'
-    c = cjdns.connect()
-
-    if verify:
-        res = c.nodeForAddr()['result']
-        lastHop = res['bestParent']['ip']
-
-        yield lastHop
-
-        while True:
-            x = c.nextHop(target, lastHop)
-            # TODO: implement
-            return
-    else:
-        found = 0
-        for route in c.dumpTable():
-            if route['ip'] != target:
-                continue
-
-            found += 1
-
-            yield '[+] found route #%d' % found
-            # TODO: show the route
-
-    c.disconnect()
-
-
 @arg('-f', '--follow', help='show new nodes while they\'re discovered')
 @wrap_errors([KeyboardInterrupt, socket.error])
 def r(follow=False):
@@ -278,7 +248,6 @@ def mon(level=None, file=None, line=0):
         raise
 
 
-@arg('-t', '--trace', help='')
 @wrap_errors([IOError])
 def uplinks(ip, trace=False):
     'show uplinks of a node'
@@ -567,7 +536,7 @@ def wrbt_import(pk, url, display=False):
 
 
 parser = ArghParser()
-parser.add_commands([start, bootstrap, a, n, ping, top, mon, tr, r, uplinks, whois])
+parser.add_commands([start, bootstrap, a, n, ping, top, mon, r, uplinks, whois])
 parser.add_commands([peer_auth, peer_add, peer_ls, peer_remove],
                     namespace='peer', title='ctrl peers')
 parser.add_commands([nf_get, nf_peer, nf_announce],
