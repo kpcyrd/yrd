@@ -76,3 +76,19 @@ def speed(b):
         b = round(b / 1024, 2)
 
     return '%d %s/s' % (b, unit)
+
+
+def get_nodeinfo(ip, hub=False):
+    import requests
+
+    if hub:
+        url = 'http://api.hyperboria.net/v0/node/info.json?ip=%s' % ip
+        title = 'hub.hyperboria.net'
+    else:
+        url = 'http://[%s]/nodeinfo.json' % ip
+        title = 'nodeinfo.json'
+
+    j = requests.get(url).json
+    if not type(j) is dict:
+        j = j()
+    return j, title
