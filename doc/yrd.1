@@ -1,0 +1,86 @@
+.TH YRD 1 "September 2015" "yrd v0.3" "User Commands"
+.SH NAME
+yrd \- cjdns for humans and cyborgs
+.SH SYNOPSIS
+.sp
+.nf
+\fIyrd\fR [\-\-help] <command> [<args>]
+.fi
+.sp
+.SH DESCRIPTION
+
+yrd is an iproute2 inspired interface to cjdroute.
+
+.SH OPTIONS
+.PP
+\-\-help
+.RS 4
+Prints the yrd help
+.RE
+
+.SH COMMANDS
+
+.TP
+.BR "start"
+Starts cjdroute and configures it after it's started. Peers are pulled from
+.B /etc/yrd/peers.d
+and to the running cjdroute. Use
+.B \-\-attach
+to configure an already running cjdroute.
+
+.TP
+.BR "boot"
+Polls for peers from the default
+.B nightfall
+servers and adds them as peers.
+
+.TP
+.BR "a (address)"
+Shows your cjdns address. Use
+.B \-i
+to format it as IPv6 address.
+
+.TP
+.BR "n (neighbours)"
+Shows your neighbours you're directly peered with. Use
+.B \-n
+to display their neighbours, too. Use
+.B \-i
+to format them as IPv6 addresses.
+
+.TP
+.BR "r (routes)"
+Shows addresses in your nodestore. Use
+.B \-f
+for tailf like behaviour. Use
+.B \-i
+to format them as IPv6 addresses.
+
+.TP
+.BR "ping"
+Ping a node over cjdns, without using icmp. Use
+.B \-\-switch
+to do a switch ping or
+.B \-c
+to specify how many pings should be sent.
+
+.TP
+.BR "top"
+Much colors.
+
+.TP
+.BR "mon"
+Display debug information from cjdroute.
+
+.B -l, --level
+filter by log level
+.sp
+.B -f, --file
+filter by source file
+.sp
+.B -n, --line
+filter by line number
+
+.TP
+.BR "uplinks"
+Shows known links from a given node in the network.
