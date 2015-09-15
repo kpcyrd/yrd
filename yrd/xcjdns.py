@@ -25,7 +25,7 @@ class Cjdroute(object):
         if 'error' in res and res['error'] != 'none':
             raise Exception(repr(res))
         if os.getenv('YRD_DEBUG'):
-            print(repr(res)) # DEBUG SWITCH
+            print(repr(res))  # DEBUG SWITCH
         return res
 
     def _send(self, **kwargs):

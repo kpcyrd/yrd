@@ -3,9 +3,9 @@ from subprocess import Popen, PIPE, check_output
 from argh import *
 import itertools
 import socket
-import xcjdns as cjdns
-import cjdns as cj
-import utils
+from . import xcjdns as cjdns
+from . import cjdns as cj
+from . import utils
 import json
 import time
 import sys
@@ -556,5 +556,9 @@ parser.add_commands([nf_get, nf_peer, nf_announce],
 parser.add_commands([wrbt_seek, wrbt_confirm, wrbt_import],
                     namespace='wrbt', title='wrbt implementation')
 
-if __name__ == '__main__':
+
+def main():
     dispatch(parser)
+
+if __name__ == '__main__':
+    main()
