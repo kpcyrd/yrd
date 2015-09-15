@@ -1,6 +1,7 @@
 from bencode import bencode, bdecode
 from hashlib import sha512, sha256
 import socket
+import os
 
 BUFFER_SIZE = 69632
 
@@ -23,7 +24,8 @@ class Cjdroute(object):
         res = bdecode(self.s.recv(BUFFER_SIZE))
         if 'error' in res and res['error'] != 'none':
             raise Exception(repr(res))
-        # print(repr(res)) # DEBUG SWITCH
+        if os.getenv('YRD_DEBUG'):
+            print(repr(res)) # DEBUG SWITCH
         return res
 
     def _send(self, **kwargs):
