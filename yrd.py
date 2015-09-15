@@ -110,9 +110,10 @@ def ping(ip, count=0, switch=False):
     c.disconnect()
 
 
+@arg('-i', '--ip', help='format as ipv6')
 @arg('-f', '--follow', help='show new nodes while they\'re discovered')
 @wrap_errors([KeyboardInterrupt, socket.error])
-def r(follow=False):
+def r(ip=False, follow=False):
     'access the nodestore'
     c = cjdns.connect()
 
@@ -122,9 +123,11 @@ def r(follow=False):
     while True:
         for node in c.dumpTable():
             if node['ip'] not in known:
-                yield FMT % (node['ip'], node['path'], node['version'],
-                             node['link'], node['time'])
-
+                if ip:
+                    yield FMT % (node['ip'], node['path'], node['version'],
+                                 node['link'], node['time'])
+                else:
+                    yield node['addr']
                 known.append(node['ip'])
 
         if not follow:
@@ -135,14 +138,18 @@ def r(follow=False):
     c.disconnect()
 
 
+@arg('-i', '--ip', help='format as ipv6')
 @arg('-n', '--neighbours', help='show neighbours peers')
 @aliases('neighbours')
 @wrap_errors([socket.error, IOError, KeyboardInterrupt])
-def n(neighbours=False):
+def n(ip=False, neighbours=False):
     'shows your neighbours'
     c = cjdns.connect()
 
-    STAT_FORMAT = '%s %19s  v%-2d  in %4dkb/s out %4dkb/s  %12s  %d/%d/%d  '
+    if ip:
+        STAT_FORMAT = '%s %19s  v%-2d  in %4dkb/s out %4dkb/s  %12s  %d/%d/%d  '
+    else:
+        STAT_FORMAT = '%s  in %4dkb/s out %4dkb/s  %12s  %d/%d/%d  '
     nodestore = list(c.dumpTable())
 
     connections = {}
@@ -161,15 +168,21 @@ def n(neighbours=False):
     for peer in c.peerStats():
         result = c.nodeForAddr(peer.ip)['result']
 
-        route = utils.grep_ns(nodestore, peer.addr)
-        path = utils.get_path(route)
+        if ip:
+            route = utils.grep_ns(nodestore, peer.addr)
+            path = utils.get_path(route)
 
-        setattr(peer, 'path', path)
+            setattr(peer, 'path', path)
 
-        line = STAT_FORMAT % (peer.ip, peer.path, peer.version,
-                              peer.recvKbps, peer.sendKbps, peer.state,
-                              peer.duplicates, peer.lostPackets,
-                              peer.receivedOutOfRange)
+            line = STAT_FORMAT % (peer.ip, peer.path, peer.version,
+                                  peer.recvKbps, peer.sendKbps, peer.state,
+                                  peer.duplicates, peer.lostPackets,
+                                  peer.receivedOutOfRange)
+        else:
+            line = STAT_FORMAT % (peer.addr,
+                                  peer.recvKbps, peer.sendKbps, peer.state,
+                                  peer.duplicates, peer.lostPackets,
+                                  peer.receivedOutOfRange)
 
         if hasattr(peer, 'user'):
             line += repr(peer.user)
@@ -180,19 +193,26 @@ def n(neighbours=False):
 
         if neighbours:
             for i in range(result['linkCount']):
-                link = c.getLink(peer.ip, i)
+                try:
+                    link = c.getLink(peer.ip, i)
 
-                if link and 'child' in link['result']:
-                    child = link['result']['child']
-                    route = utils.grep_ns(nodestore, child)
+                    if link and 'child' in link['result']:
+                        child = link['result']['child']
+                        if ip:
+                            route = utils.grep_ns(nodestore, child)
 
-                    ip = cjdns.addr2ip(child)
-                    version = utils.get_version(route)
-                    path = utils.get_path(route)
+                            ip = cjdns.addr2ip(child)
+                            version = utils.get_version(route)
+                            path = utils.get_path(route)
 
-                    yield '   %s   %s  v%s' % (ip, path, version)
-                else:
-                    yield '   -'
+                            yield '   %s   %s  v%s' % (ip, path, version)
+                        else:
+                            yield '   ' + child
+                    else:
+                        yield '   -'
+                except:
+                    # TODO remove this
+                    pass
 
     c.disconnect()
 
@@ -210,7 +230,7 @@ def top(n=25, routing=False):
     s = top.Session()
 
     while True:
-        print(s.output([] if routing else neighbours(), r(), n))
+        print(s.output([] if routing else neighbours(), r(ip=True), n))
         time.sleep(1)
 
 
