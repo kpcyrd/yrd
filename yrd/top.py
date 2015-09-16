@@ -42,6 +42,10 @@ class Session(object):
         return output
 
 
+def cmp(a, b):
+    return (a > b) - (a < b)
+
+
 class Node(object):
     def __init__(self, path):
         self.path = path

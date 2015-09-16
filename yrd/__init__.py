@@ -1,6 +1,5 @@
-#!/usr/bin/env python2
 from subprocess import Popen, PIPE, check_output
-from argh import *
+from argh import arg, dispatch, wrap_errors, aliases, named, ArghParser
 import itertools
 import socket
 from . import xcjdns as cjdns
@@ -225,12 +224,12 @@ neighbours = n
 @wrap_errors([KeyboardInterrupt])
 def top(n=25, routing=False):
     'much colors'
-    import top
+    from .top import Session
 
-    s = top.Session()
+    s = Session()
 
     while True:
-        print(s.output([] if routing else neighbours(), r(ip=True), n))
+        print(s.output([] if routing else neighbours(ip=True), r(ip=True), n))
         time.sleep(1)
 
 

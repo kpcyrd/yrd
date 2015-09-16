@@ -1,4 +1,5 @@
-from bencode import bencode, bdecode
+from .cjdns.bencode import bencode, bdecode
+from . import cjdns
 from hashlib import sha512, sha256
 import socket
 import os
@@ -29,7 +30,7 @@ class Cjdroute(object):
         return res
 
     def _send(self, **kwargs):
-        self.s.send(bencode(kwargs))
+        self.s.send(bencode(kwargs).encode('ascii'))
 
     def send(self, **kwargs):
         if self.password:
@@ -183,12 +184,4 @@ def addr2ip(addr):
     return pk2ipv6(addr[24:])
 
 
-def pk2ipv6(pubKey):
-    if pubKey[-2:] != ".k":
-        raise ValueError("key does not end with .k")
-
-    keyBytes = Base32_decode(pubKey[:-2])
-    hashOne = sha512(keyBytes).digest()
-    hashTwo = sha512(hashOne).hexdigest()
-
-    return ":".join([hashTwo[i:i+4] for i in range(0, 32, 4)])
+pk2ipv6 = cjdns.PublicToIp6
