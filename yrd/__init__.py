@@ -4,6 +4,7 @@ import socket
 from . import xcjdns as cjdns
 from . import cjdns as cj
 from . import utils
+from . import peer
 from .const import YRD_FOLDER, YRD_PEERS, CJDROUTE_CONF, CJDROUTE_BIN
 import json
 import time
@@ -56,132 +57,10 @@ from .core import mon
 from .core import uplinks
 from .core import whois
 
-
-@named('auth')
-@arg('password', nargs='?', help='Set peering password')
-@arg('-l', '--live', help='Don\'t write to disk')
-@arg('-c', '--cjdroute', help='Show cjdroute output only')
-@arg('-y', '--yrd', help='Show yrd output only')
-@arg('-j', '--json', dest='json_output', help='Show json output only')
-@wrap_errors([socket.error, IOError])
-def peer_auth(name, password, live=False, cjdroute=False, yrd=False,
-              json_output=False):
-    'add a password for inbound connections'
-
-    if '/' in name:
-        yield 'nope'
-        exit(1)
-
-    path = os.path.join(YRD_PEERS, name)
-    if os.path.exists(path):
-        with open(path) as f:
-            password = json.load(f)['password']
-    else:
-        if not password:
-            password = utils.generate_key(31)
-
-        info = {
-            'type': 'in',
-            'name': name,
-            'password': password
-        }
-
-        if not live:
-            with open(path, 'w') as f:
-                f.write(json.dumps(info))
-
-    conf = utils.load_conf(CJDROUTE_CONF, CJDROUTE_BIN)
-    c = cj.connect('127.0.0.1', 11234, conf['admin']['password'])
-    resp = c.AuthorizedPasswords_add(user=name, password=password)
-    utils.raise_on_error(resp)
-    c.disconnect()
-
-    publicKey = conf['publicKey']
-    port = conf['interfaces']['UDPInterface'][0]['bind'].split(':')[1]
-
-    if json_output:
-        yield json.dumps({'ip': utils.get_ip(), 'port': port,
-                         'pk': publicKey, 'password': password})
-    else:
-        if (not cjdroute and not yrd) or cjdroute:
-            yield utils.to_credstr(utils.get_ip(), port, publicKey, password)
-        if not cjdroute and not yrd:
-            yield ''
-        if (not cjdroute and not yrd) or yrd:
-            yield 'yrd peer add namehere %s:%s %s %s' % (utils.get_ip(), port,
-                                                         publicKey, password)
-
-
-@named('ls')
-@wrap_errors([IOError])
-def peer_ls():
-    'list passwords for inbound connections'
-    conf = utils.load_conf(CJDROUTE_CONF, CJDROUTE_BIN)
-    c = cjdns.connect(password=conf['admin']['password'])
-    for user in c.listPasswords()['users']:
-        yield user
-    c.disconnect()
-
-
-@arg('name', help='the peers name')
-@arg('addr', help='the peers address (ip:port)')
-@arg('pk', help='the peers public key')
-@arg('password', nargs='?', help='the password')
-@arg('-l', '--live', help='Don\'t write to disk')
-@named('add')
-@wrap_errors([IOError])
-def peer_add(name, addr, pk, password, live=False):
-    'add an outbound connection'
-    if '/' in name:
-        yield 'nope'
-        exit(1)
-
-    if not password:
-        password = raw_input('Password: ')  # TODO: python3
-
-    path = os.path.join(YRD_PEERS, name)
-
-    info = {
-        'type': 'out',
-        'name': name,
-        'addr': addr,
-        'pk': pk,
-        'password': password
-    }
-
-    if not live:
-        with open(path, 'w') as f:
-            f.write(json.dumps(info))
-
-    addr = utils.dns_resolve(addr)
-
-    conf = utils.load_conf(CJDROUTE_CONF, CJDROUTE_BIN)
-    c = cj.connect('127.0.0.1', 11234, conf['admin']['password'])
-    resp = c.UDPInterface_beginConnection(address=addr,
-                                          publicKey=pk,
-                                          password=password)
-    utils.raise_on_error(resp)
-    c.disconnect()
-
-
-@named('remove')
-@wrap_errors([IOError])
-def peer_remove(user):
-    'unpeer a node'
-    if '/' in user:
-        yield 'nope'
-        exit(1)
-
-    path = os.path.join(YRD_PEERS, user)
-    if os.path.exists(path):
-        os.unlink(path)
-    else:
-        yield 'user not found'
-
-    conf = utils.load_conf(CJDROUTE_CONF, CJDROUTE_BIN)
-    c = cjdns.connect(password=conf['admin']['password'])
-    c.removePassword(user)
-    c.disconnect()
+from .peer import auth as peer_auth
+from .peer import add as peer_add
+from .peer import ls as peer_ls
+from .peer import remove as peer_remove
 
 
 @named('get')
@@ -285,8 +164,7 @@ def wrbt_import(pk, url, display=False):
 
 parser = ArghParser()
 parser.add_commands([start, bootstrap] + core.cmd)
-parser.add_commands([peer_auth, peer_add, peer_ls, peer_remove],
-                    namespace='peer', title='ctrl peers')
+parser.add_commands(peer.cmd, namespace='peer', title='ctrl peers')
 parser.add_commands([nf_get, nf_peer, nf_announce],
                     namespace='nf', title='ctrl inet auto-peering')
 parser.add_commands([wrbt_seek, wrbt_confirm, wrbt_import],
