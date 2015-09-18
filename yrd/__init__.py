@@ -450,7 +450,7 @@ def peer_remove(user):
 @named('get')
 def nf_get(desired, *trackers):
     'query public peers'
-    import nf
+    from . import nf
     for tracker in trackers:
         for peer in nf.request_peers(desired, tracker):
             yield peer.credentialstr()
@@ -459,7 +459,7 @@ def nf_get(desired, *trackers):
 @named('peer')
 def nf_peer(desired, *trackers):
     'connect to public peers'
-    import nf
+    from . import nf
     for tracker in trackers:
         for peer in nf.request_peers(desired, tracker):
             addr = '%s:%d' % (peer.ip, peer.port)
@@ -475,7 +475,7 @@ def nf_peer(desired, *trackers):
 @wrap_errors([KeyboardInterrupt, IOError])
 def nf_announce(tracker, password, contact, oneshot=False):
     'announce yourself as public peer'
-    import nf
+    from . import nf
 
     conf = utils.load_conf(CJDROUTE_CONF, CJDROUTE_BIN)
 
@@ -505,7 +505,7 @@ def nf_announce(tracker, password, contact, oneshot=False):
 @named('seek')
 def wrbt_seek():
     'create a peering request'
-    import wrbt
+    from . import wrbt
     url, pk = wrbt.request()
     yield 'Import offer: yrd wrbt import "%s" <offer>' % pk
     yield url
@@ -514,7 +514,7 @@ def wrbt_seek():
 @named('confirm')
 def wrbt_confirm(name, url):
     'confirm a peering request'
-    import wrbt
+    from . import wrbt
     request = wrbt.decode(url)
 
     conf = utils.load_conf(CJDROUTE_CONF, CJDROUTE_BIN)
@@ -533,7 +533,7 @@ def wrbt_confirm(name, url):
 @named('import')
 def wrbt_import(pk, url, display=False):
     'import a peering offer'
-    import wrbt
+    from . import wrbt
     offer = wrbt.decode(url)
     msg = wrbt.decrypt(pk, offer)
 
