@@ -73,6 +73,7 @@ def a(ip=False):
     if ip:
         yield res['bestParent']['ip']
     else:
+        # TODO: add 'addr' to nodeForAddr
         yield 'v%s.%s.%s' % (res['protocolVersion'], res['routeLabel'], res['key'])
 
     c.disconnect()
@@ -121,13 +122,15 @@ def r(ip=False, follow=False):
 
     while True:
         for node in c.dumpTable():
-            if node['ip'] not in known:
-                if ip:
+            if ip:
+                if node['ip'] not in known:
                     yield FMT % (node['ip'], node['path'], node['version'],
                                  node['link'], node['time'])
-                else:
+                    known.append(node['ip'])
+            else:
+                if node['addr'] not in known:
                     yield node['addr']
-                known.append(node['ip'])
+                    known.append(node['addr'])
 
         if not follow:
             break
@@ -147,9 +150,9 @@ def n(ip=False, neighbours=False):
 
     if ip:
         STAT_FORMAT = '%s %19s  v%-2d  in %4dkb/s out %4dkb/s  %12s  %d/%d/%d  '
+        nodestore = list(c.dumpTable())
     else:
         STAT_FORMAT = '%s  in %4dkb/s out %4dkb/s  %12s  %d/%d/%d  '
-    nodestore = list(c.dumpTable())
 
     connections = {}
 
@@ -165,14 +168,7 @@ def n(ip=False, neighbours=False):
         pass
 
     for peer in c.peerStats():
-        result = c.nodeForAddr(peer.ip)['result']
-
         if ip:
-            route = utils.grep_ns(nodestore, peer.addr)
-            path = utils.get_path(route)
-
-            setattr(peer, 'path', path)
-
             line = STAT_FORMAT % (peer.ip, peer.path, peer.version,
                                   peer.recvKbps, peer.sendKbps, peer.state,
                                   peer.duplicates, peer.lostPackets,
@@ -191,20 +187,16 @@ def n(ip=False, neighbours=False):
         yield line
 
         if neighbours:
-            for i in range(result['linkCount']):
+            links = c.nodeForAddr(peer.addr)['result']['linkCount']
+            for i in range(links):
                 try:
                     link = c.getLink(peer.ip, i)
 
                     if link and 'child' in link['result']:
                         child = link['result']['child']
                         if ip:
-                            route = utils.grep_ns(nodestore, child)
-
-                            ip = cjdns.addr2ip(child)
-                            version = utils.get_version(route)
-                            path = utils.get_path(route)
-
-                            yield '   %s   %s  v%s' % (ip, path, version)
+                            x = cjdns.Peer(addr=child)
+                            yield '   %s   %s  v%s' % (x.ip, x.path, x.version)
                         else:
                             yield '   ' + child
                     else:
@@ -267,25 +259,30 @@ def mon(level=None, file=None, line=0):
         raise
 
 
+@arg('-i', '--ip', help='format as ipv6')
 @wrap_errors([IOError])
-def uplinks(ip, trace=False):
+def uplinks(addr, ip=False):
     'show uplinks of a node'
     conf = utils.load_conf(CJDROUTE_CONF, CJDROUTE_BIN)
     c = cjdns.connect(password=conf['admin']['password'])
-    nodestore = list(c.dumpTable())
 
-    result = c.nodeForAddr(ip)['result']
+    result = c.nodeForAddr(addr)['result']
+
+    try:
+        x = cjdns.Peer(addr=addr)
+    except ValueError:
+        x = cjdns.Peer(ip=addr)
+
     for i in range(result['linkCount']):
-        link = c.getLink(ip, i)
+        link = c.getLink(x.ip, i)
 
         if link and 'child' in link['result']:
             child = link['result']['child']
-            route = utils.grep_ns(nodestore, child)
-
-            version = utils.get_version(route)
-            path = utils.get_path(route)
-
-            yield '%s   %s  v%d' % (child, path, version)
+            if ip:
+                y = cjdns.Peer(addr=child)
+                yield '%s   %s  v%s' % (y.ip, y.path, y.version)
+            else:
+                yield child
         else:
             yield('-')
 
@@ -400,7 +397,7 @@ def peer_add(name, addr, pk, password, live=False):
         exit(1)
 
     if not password:
-        password = raw_input('Password: ')
+        password = raw_input('Password: ')  # TODO: python3
 
     path = os.path.join(YRD_PEERS, name)
 

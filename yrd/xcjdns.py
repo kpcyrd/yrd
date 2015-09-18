@@ -126,8 +126,17 @@ class Cjdroute(object):
 
 class Peer(object):
     def __init__(self, **kwargs):
-        if 'ip' not in kwargs and 'publicKey' in kwargs:
-            kwargs['ip'] = pk2ipv6(kwargs['publicKey'])
+        if 'ip' not in kwargs:
+            if 'publicKey' in kwargs:
+                kwargs['ip'] = pk2ipv6(kwargs['publicKey'])
+            elif 'addr' in kwargs:
+                kwargs['ip'] = addr2ip(kwargs['addr'])
+
+        if 'path' not in kwargs and 'addr' in kwargs:
+            kwargs['path'] = kwargs['addr'][4:23]
+
+        if 'version' not in kwargs and 'addr' in kwargs:
+            kwargs['version'] = kwargs['addr'][1:3]
 
         for x, y in kwargs.items():
             setattr(self, x, y)
