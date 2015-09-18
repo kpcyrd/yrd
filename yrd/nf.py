@@ -1,4 +1,4 @@
-from .argh import arg, wrap_errors, named
+from argh import arg, wrap_errors
 from . import utils
 from .peer import add
 from random import shuffle

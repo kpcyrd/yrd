@@ -1,46 +1,9 @@
-from argh import arg, dispatch, wrap_errors, aliases, named, ArghParser
-from subprocess import Popen, PIPE
+from argh import arg, dispatch, named, ArghParser
 from . import utils
 from .const import YRD_FOLDER, YRD_PEERS, CJDROUTE_CONF, CJDROUTE_BIN
-import json
-import os
 
 
-@arg('--attach', help='configure running cjdroute')
-@arg('--boot', help='bootstraps network access')
-@wrap_errors([KeyboardInterrupt, IOError])
-def start(attach=False, boot=False):
-
-    if not attach:
-        p = Popen(['cjdroute'], stdin=PIPE)
-        conf = utils.load_conf(CJDROUTE_CONF, CJDROUTE_BIN)
-        p.communicate(json.dumps(conf))
-
-    for peer in os.listdir(YRD_PEERS):
-        yield '[*] adding %r' % peer
-        try:
-            with open(os.path.join(YRD_PEERS, peer)) as f:
-                info = json.load(f)
-        except ValueError:
-            yield '[-] invalid json'
-        else:
-            if info['type'] == 'in':
-                try:
-                    list(peer_auth(info['name'], info['password'], live=True))
-                except KeyError:
-                    yield '[-] key error'
-            elif info['type'] == 'out':
-                list(peer_add(peer, info['addr'], info['pk'], info['password'], live=True))
-
-    if boot:
-        bootstrap()
-
-
-def bootstrap():
-    'bootstraps network access'
-    import bootstrap as boot
-    nf_peer(boot.DESIRED, [x + boot.TOPIC + '/seek/' for x in bootstrap.trackers])
-
+from . import start
 
 from .core import a
 from .core import ping
@@ -106,7 +69,7 @@ def wrbt_import(pk, url, display=False):
 
 
 parser = ArghParser()
-parser.add_commands([start, bootstrap] + core.cmd)
+parser.add_commands(start.cmd + core.cmd)
 parser.add_commands(peer.cmd, namespace='peer', title='ctrl peers')
 parser.add_commands(nf.cmd, namespace='nf', title='ctrl inet auto-peering')
 parser.add_commands([wrbt_seek, wrbt_confirm, wrbt_import],
