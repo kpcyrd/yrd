@@ -1,10 +1,8 @@
 from argh import arg, dispatch, wrap_errors, aliases, named, ArghParser
 from subprocess import Popen, PIPE
 from . import utils
-from . import peer
 from .const import YRD_FOLDER, YRD_PEERS, CJDROUTE_CONF, CJDROUTE_BIN
 import json
-import time
 import os
 
 
@@ -58,60 +56,9 @@ from .peer import add as peer_add
 from .peer import ls as peer_ls
 from .peer import remove as peer_remove
 
-
-@named('get')
-def nf_get(desired, *trackers):
-    'query public peers'
-    from . import nf
-    for tracker in trackers:
-        for peer in nf.request_peers(desired, tracker):
-            yield peer.credentialstr()
-
-
-@named('peer')
-def nf_peer(desired, *trackers):
-    'connect to public peers'
-    from . import nf
-    for tracker in trackers:
-        for peer in nf.request_peers(desired, tracker):
-            addr = '%s:%d' % (peer.ip, peer.port)
-            peer_add(peer.ip, addr, peer.publicKey, peer.password)
-            yield '[+] peered with %s' % addr
-
-
-@arg('tracker', help='the tracker you want to announce on')
-@arg('password', help='the password you want to share')
-@arg('-1', '--oneshot', help='if you want to announce per cronjob')
-@arg('contact', nargs='?', help='if you want to allow contact')
-@named('announce')
-@wrap_errors([KeyboardInterrupt, IOError])
-def nf_announce(tracker, password, contact, oneshot=False):
-    'announce yourself as public peer'
-    from . import nf
-
-    conf = utils.load_conf(CJDROUTE_CONF, CJDROUTE_BIN)
-
-    addr = conf['interfaces']['UDPInterface'][0]['bind']
-    peer = {
-        'port': int(addr.split(':')[1]),
-        'publicKey': conf['publicKey'],
-        'password': password
-    }
-
-    if contact:
-        peer['contact'] = contact
-
-    while True:
-        try:
-            if nf.announce(tracker, **peer):
-                yield '[+] Told the tracker we\'re here'
-        except (IOError, ValueError) as e:
-            yield '[-] %s' % e
-
-        if oneshot:
-            break
-
-        time.sleep(120)
+from .nf import get as nf_get
+from .nf import auto as nf_peer
+from .nf import announce as nf_announce
 
 
 @named('seek')
@@ -161,8 +108,7 @@ def wrbt_import(pk, url, display=False):
 parser = ArghParser()
 parser.add_commands([start, bootstrap] + core.cmd)
 parser.add_commands(peer.cmd, namespace='peer', title='ctrl peers')
-parser.add_commands([nf_get, nf_peer, nf_announce],
-                    namespace='nf', title='ctrl inet auto-peering')
+parser.add_commands(nf.cmd, namespace='nf', title='ctrl inet auto-peering')
 parser.add_commands([wrbt_seek, wrbt_confirm, wrbt_import],
                     namespace='wrbt', title='wrbt implementation')
 
