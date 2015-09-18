@@ -1,14 +1,10 @@
 from argh import arg, dispatch, wrap_errors, aliases, named, ArghParser
 from subprocess import Popen, PIPE
-import socket
-from . import xcjdns as cjdns
-from . import cjdns as cj
 from . import utils
 from . import peer
 from .const import YRD_FOLDER, YRD_PEERS, CJDROUTE_CONF, CJDROUTE_BIN
 import json
 import time
-import sys
 import os
 
 
