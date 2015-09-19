@@ -9,18 +9,27 @@ cjdns for humans and cyborgs
 How to install cjdns with yrd
 -----------------------------
 
-If you're running arch, checkout the [package](https://aur.archlinux.org/packages/yrd/) prurigro built for arch.
+If you're running arch:
 
-    git clone https://github.com/kpcyrd/yrd.git
-    cd yrd
-    # install dependencies
-    apt-get install python-argh python-requests
-    # install yrd
-    ./setup.py -v install
-    # install the service
-    cp init/yrd.service /etc/systemd/system/
-    systemctl enable yrd
-    systemctl start yrd
+```sh
+yaourt -S yrd
+systemctl enable yrd
+```
+
+If you're running debian/ubuntu:
+
+```sh
+git clone https://github.com/kpcyrd/yrd.git
+cd yrd
+# install dependencies
+apt-get install python-argh python-requests
+# install yrd
+./setup.py -v install
+# install the service
+cp init/yrd.service /etc/systemd/system/
+systemctl enable yrd
+systemctl start yrd
+```
 
 Sample Output
 -------------
@@ -113,7 +122,7 @@ Like "wired"
 ----------------
 
 - appa - found some bugs and rough edges
-- prurigro - testing and building arch packages
+- prurigro - testing and building aur packages
 
 Contributing
 ------------
