@@ -16,7 +16,7 @@ If you're running arch, checkout the [package](https://aur.archlinux.org/package
     # install dependencies
     apt-get install python-argh python-requests
     # install yrd
-    ./install.py
+    ./setup.py -v install
     # if you're using systemd
     cp init/yrd.service /etc/systemd/system/
     systemctl enable yrd
