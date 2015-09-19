@@ -1,4 +1,4 @@
-from argh import arg, wrap_errors, aliases, named
+from argh import arg, wrap_errors, aliases
 from .const import YRD_PEERS, CJDROUTE_CONF, CJDROUTE_BIN
 from . import xcjdns as cjdns
 from . import cjdns as cj
@@ -10,8 +10,9 @@ import os
 
 
 @arg('-i', '--ip', help='format as ipv6')
+@aliases('a')
 @wrap_errors([socket.error, IOError])
-def a(ip=False):
+def addr(ip=False):
     'show address of cjdroute'
     c = cjdns.connect()
 
@@ -58,8 +59,9 @@ def ping(ip, count=0, switch=False):
 
 @arg('-i', '--ip', help='format as ipv6')
 @arg('-f', '--follow', help='show new nodes while they\'re discovered')
+@aliases('r')
 @wrap_errors([KeyboardInterrupt, socket.error])
-def r(ip=False, follow=False):
+def route(ip=False, follow=False):
     'access the nodestore'
     c = cjdns.connect()
 
@@ -88,9 +90,9 @@ def r(ip=False, follow=False):
 
 @arg('-i', '--ip', help='format as ipv6')
 @arg('-n', '--neighbours', help='show neighbours peers')
-@aliases('neighbours')
+@aliases('n')
 @wrap_errors([socket.error, IOError, KeyboardInterrupt])
-def n(ip=False, neighbours=False):
+def neighbours(ip=False, neighbours=False):
     'shows your neighbours'
     c = cjdns.connect()
 
@@ -154,9 +156,6 @@ def n(ip=False, neighbours=False):
     c.disconnect()
 
 
-neighbours = n
-
-
 @arg('-n', help='number of routes displayed')
 @arg('-r', '--routing', help='show routing only')
 @wrap_errors([KeyboardInterrupt])
@@ -167,7 +166,7 @@ def top(n=25, routing=False):
     s = Session()
 
     while True:
-        print(s.output([] if routing else neighbours(ip=True), r(ip=True), n))
+        print(s.output([] if routing else neighbours(ip=True), route(ip=True), n))
         time.sleep(1)
 
 
@@ -263,4 +262,4 @@ def whois(ip, hub=False):
             yield line
 
 
-cmd = [a, n, ping, top, mon, r, uplinks, whois]
+cmd = [addr, neighbours, ping, top, mon, route, uplinks, whois]
