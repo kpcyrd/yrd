@@ -17,14 +17,10 @@ If you're running arch, checkout the [package](https://aur.archlinux.org/package
     apt-get install python-argh python-requests
     # install yrd
     ./setup.py -v install
-    # if you're using systemd
+    # install the service
     cp init/yrd.service /etc/systemd/system/
     systemctl enable yrd
     systemctl start yrd
-    # if you're using init-sysv
-    cp init/yrd.sh /etc/init.d/yrd
-    update-rc.d yrd enable
-    service yrd start
 
 Sample Output
 -------------
