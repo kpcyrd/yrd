@@ -1,10 +1,7 @@
 yrd
 ===
 
-cjdns for humans and cyborgs
-
-    < kpcyrd> I resolved one of my major problems with cjdns
-    < kpcyrd> systemd logged cjdns output with 'sh' as program name. Now it's yrd
+cjdns swiss army knife
 
 How to install cjdns with yrd
 -----------------------------
