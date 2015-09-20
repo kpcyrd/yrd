@@ -116,7 +116,10 @@ def rm(user):
 
     conf = utils.load_conf(CJDROUTE_CONF, CJDROUTE_BIN)
     c = cjdns.connect(password=conf['admin']['password'])
-    c.removePassword(user)
+    try:
+        c.removePassword(user)
+    except:
+        pass
     c.disconnect()
 
 
