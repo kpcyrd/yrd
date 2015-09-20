@@ -20,12 +20,10 @@ class DhtPeer(object):
 
 def request_peers(desired, tracker):
     import requests
-    response = requests.get(tracker).json
+    response = requests.get(tracker).json()
+    shuffle(response)
 
-    if not type(response) is list:
-        response = response()
-
-    for peer in shuffle(response)[:desired]:
+    for peer in response[:desired]:
         try:
             yield DhtPeer(**peer)
         except TypeError:
@@ -38,6 +36,7 @@ def _announce(tracker, **kwargs):
     return resp['status'] == 'success'
 
 
+@arg('desired', type=int)
 def get(desired, *trackers):
     'query public peers'
     for tracker in trackers:
@@ -45,13 +44,13 @@ def get(desired, *trackers):
             yield peer.credentialstr()
 
 
+@arg('desired', type=int)
+@wrap_errors([PermissionError])
 def auto(desired, *trackers):
     'connect to public peers'
-    for tracker in trackers:
-        for peer in request_peers(desired, tracker):
-            addr = '%s:%d' % (peer.ip, peer.port)
-            add(peer.ip, addr, peer.publicKey, peer.password)
-            yield '[+] peered with %s' % addr
+    for auth in get(desired, *trackers):
+        list(add('nf.auto', [auth]))
+        yield auth
 
 
 @arg('tracker', help='the tracker you want to announce on')

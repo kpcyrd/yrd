@@ -54,6 +54,26 @@ def auth(name, password, live=False, silent=False):
     yield utils.to_credstr(utils.get_ip(), port, publicKey, password)
 
 
+def resolve(source, path=None):
+    if type(source) is list:
+        return source
+
+    source = source or path
+
+    if not source:
+        return []
+
+    def read(source):
+        source = sys.stdin if source == '-' else open(source)
+        for auth in source:
+            auth = auth.strip()
+
+            if auth:
+                yield auth
+
+    return read(source)
+
+
 @arg('name', help='the peers name')
 @arg('source', nargs='?', help='read from file')
 @arg('-l', '--live', help='Don\'t write to disk')
@@ -68,16 +88,9 @@ def add(name, source, live=False):
     c = cj.connect('127.0.0.1', 11234, conf['admin']['password'])
 
     path = os.path.join(YRD_OUTBOUND, name)
-    source = source or path
-
     out = not live and open(path, 'w')
-    source = sys.stdin if source == '-' else open(source)
-    for auth in source:
-        auth = auth.strip()
 
-        if not auth:
-            continue
-
+    for auth in resolve(source, path):
         if out:
             print(auth, file=out)
 
