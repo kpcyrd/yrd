@@ -14,13 +14,13 @@ def raise_on_error(resp):
 
 
 def generate_key(length):
-    key = ''
-    with open('/dev/urandom') as f:
+    key = b''
+    with open('/dev/urandom', 'rb') as f:
         while len(key) < length:
             x = f.read(1)
             if x.isalnum():
                 key += x
-    return key
+    return str(key, 'ascii')
 
 
 def get_ip():
@@ -29,11 +29,12 @@ def get_ip():
     return s.getsockname()[0]
 
 
-def to_credstr(ip, port, publicKey, password, **kwargs):
+def to_credstr(ip, port, publicKey, password, strict=False, **kwargs):
     addr = '%s:%d' % (ip, int(port))
     kwargs['password'] = password
     kwargs['publicKey'] = publicKey
-    return json.dumps({addr: kwargs})[1:-1]
+    cred = json.dumps({addr: kwargs})
+    return cred if strict else cred[1:-1]
 
 
 def grep_ns(ns, addr):
@@ -60,11 +61,13 @@ def dns_resolve(addr):
 
 def load_conf(conf, bin):
     try:
-        with open(conf) as f:
+        with open(conf, 'rb') as f:
             conf = f.read()
 
         p = Popen([bin, '--cleanconf'], stdin=PIPE, stdout=PIPE)
-        return json.loads(p.communicate(conf)[0])
+        conf = p.communicate(conf)[0]
+        conf = str(conf, 'ascii')
+        return json.loads(conf)
     except ValueError:
         raise Exception('failed to load cjdroute.conf as json')
 

@@ -37,12 +37,12 @@ class Cjdroute(object):
             self._send(q='cookie')
             cookie = self.recv()['cookie']
 
-            kwargs['hash'] = sha256(self.password + cookie).hexdigest()
+            kwargs['hash'] = sha256((self.password + cookie).encode('ascii')).hexdigest()
             kwargs['cookie'] = cookie
 
             kwargs['aq'] = kwargs['q']
             kwargs['q'] = 'auth'
-            kwargs['hash'] = sha256(bencode(kwargs)).hexdigest()
+            kwargs['hash'] = sha256(bencode(kwargs).encode('ascii')).hexdigest()
 
         self._send(**kwargs)
 

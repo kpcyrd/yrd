@@ -1,5 +1,5 @@
 from .arg import arg, wrap_errors, aliases
-from .const import YRD_PEERS, CJDROUTE_CONF, CJDROUTE_BIN
+from .const import CJDROUTE_CONF, CJDROUTE_BIN
 from . import xcjdns as cjdns
 from . import cjdns as cj
 from . import utils
@@ -102,19 +102,6 @@ def neighbours(ip=False, neighbours=False):
     else:
         STAT_FORMAT = '%s  in %4dkb/s out %4dkb/s  %12s  %d/%d/%d  '
 
-    connections = {}
-
-    try:
-        for peer in os.listdir(YRD_PEERS):
-            with open(os.path.join(YRD_PEERS, peer)) as f:
-                info = json.load(f)
-                try:
-                    connections[info['pk']] = str(info['name'])
-                except KeyError:
-                    pass
-    except OSError:
-        pass
-
     for peer in c.peerStats():
         if ip:
             line = STAT_FORMAT % (peer.ip, peer.path, peer.version,
@@ -129,8 +116,6 @@ def neighbours(ip=False, neighbours=False):
 
         if hasattr(peer, 'user'):
             line += repr(peer.user)
-        elif peer.publicKey in connections:
-            line += repr(connections[peer.publicKey])
 
         yield line
 

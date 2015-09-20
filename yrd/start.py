@@ -1,6 +1,6 @@
 from .arg import arg, wrap_errors
 from subprocess import Popen, PIPE
-from .const import YRD_PEERS, CJDROUTE_CONF, CJDROUTE_BIN
+from .const import YRD_INBOUND, YRD_OUTBOUND, CJDROUTE_CONF, CJDROUTE_BIN
 import json
 import os
 
@@ -9,29 +9,25 @@ import os
 @arg('--boot', help='bootstraps network access')
 @wrap_errors([KeyboardInterrupt, IOError])
 def start(attach=False, boot=False):
+    'start and/or configure cjdroute'
 
     if not attach:
         p = Popen(['cjdroute'], stdin=PIPE)
         conf = utils.load_conf(CJDROUTE_CONF, CJDROUTE_BIN)
         p.communicate(json.dumps(conf))
 
-    for peer in os.listdir(YRD_PEERS):
+
+    from .peer import add
+    for peer in os.listdir(YRD_OUTBOUND):
+        yield '[*] connecting to %r' % peer
+        list(add(peer, None, live=True))
+
+
+    from .peer import auth
+    for peer in os.listdir(YRD_INBOUND):
         yield '[*] adding %r' % peer
-        try:
-            with open(os.path.join(YRD_PEERS, peer)) as f:
-                info = json.load(f)
-        except ValueError:
-            yield '[-] invalid json'
-        else:
-            if info['type'] == 'in':
-                try:
-                    from .peer import auth
-                    list(auth(info['name'], info['password'], live=True))
-                except KeyError:
-                    yield '[-] key error'
-            elif info['type'] == 'out':
-                from .peer import add
-                list(add(peer, info['addr'], info['pk'], info['password'], live=True))
+        list(auth(peer, None, silent=True, live=True))
+
 
     if boot:
         bootstrap()
@@ -42,7 +38,6 @@ def bootstrap():
     import bootstrap as boot
     from . import nf
     nf.peer(boot.DESIRED, [x + boot.TOPIC + '/seek/' for x in bootstrap.trackers])
-
 
 
 cmd = [start, bootstrap]

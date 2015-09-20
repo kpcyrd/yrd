@@ -2,27 +2,26 @@ from .arg import arg, wrap_errors
 from . import xcjdns as cjdns
 from . import cjdns as cj
 from . import utils
-from .const import CJDROUTE_CONF, CJDROUTE_BIN
+from .const import YRD_INBOUND, YRD_OUTBOUND, CJDROUTE_CONF, CJDROUTE_BIN
 import socket
 import json
+import sys
 import os
 
 
+@arg('name', help='name of the peer')
 @arg('password', nargs='?', help='Set peering password')
 @arg('-l', '--live', help='Don\'t write to disk')
-@arg('-c', '--cjdroute', help='Show cjdroute output only')
-@arg('-y', '--yrd', help='Show yrd output only')
-@arg('-j', '--json', dest='json_output', help='Show json output only')
+@arg('-s', '--silent', help='ignore already added error')
 @wrap_errors([socket.error, IOError])
-def auth(name, password, live=False, cjdroute=False, yrd=False,
-              json_output=False):
+def auth(name, password, live=False, silent=False):
     'add a password for inbound connections'
 
     if '/' in name:
         yield 'nope'
         exit(1)
 
-    path = os.path.join(YRD_PEERS, name)
+    path = os.path.join(YRD_INBOUND, name)
     if os.path.exists(path):
         with open(path) as f:
             password = json.load(f)['password']
@@ -31,7 +30,6 @@ def auth(name, password, live=False, cjdroute=False, yrd=False,
             password = utils.generate_key(31)
 
         info = {
-            'type': 'in',
             'name': name,
             'password': password
         }
@@ -43,62 +41,53 @@ def auth(name, password, live=False, cjdroute=False, yrd=False,
     conf = utils.load_conf(CJDROUTE_CONF, CJDROUTE_BIN)
     c = cj.connect('127.0.0.1', 11234, conf['admin']['password'])
     resp = c.AuthorizedPasswords_add(user=name, password=password)
-    utils.raise_on_error(resp)
+    try:
+        utils.raise_on_error(resp)
+    except:
+        if not silent:
+            raise
     c.disconnect()
 
     publicKey = conf['publicKey']
     port = conf['interfaces']['UDPInterface'][0]['bind'].split(':')[1]
 
-    if json_output:
-        yield json.dumps({'ip': utils.get_ip(), 'port': port,
-                         'pk': publicKey, 'password': password})
-    else:
-        if (not cjdroute and not yrd) or cjdroute:
-            yield utils.to_credstr(utils.get_ip(), port, publicKey, password)
-        if not cjdroute and not yrd:
-            yield ''
-        if (not cjdroute and not yrd) or yrd:
-            yield 'yrd peer add namehere %s:%s %s %s' % (utils.get_ip(), port,
-                                                         publicKey, password)
+    yield utils.to_credstr(utils.get_ip(), port, publicKey, password)
 
 
 @arg('name', help='the peers name')
-@arg('addr', help='the peers address (ip:port)')
-@arg('pk', help='the peers public key')
-@arg('password', nargs='?', help='the password')
+@arg('source', nargs='?', help='read from file')
 @arg('-l', '--live', help='Don\'t write to disk')
 @wrap_errors([IOError])
-def add(name, addr, pk, password, live=False):
+def add(name, source, live=False):
     'add an outbound connection'
     if '/' in name:
         yield 'nope'
         exit(1)
 
-    if not password:
-        password = raw_input('Password: ')  # TODO: python3
-
-    path = os.path.join(YRD_PEERS, name)
-
-    info = {
-        'type': 'out',
-        'name': name,
-        'addr': addr,
-        'pk': pk,
-        'password': password
-    }
-
-    if not live:
-        with open(path, 'w') as f:
-            f.write(json.dumps(info))
-
-    addr = utils.dns_resolve(addr)
-
     conf = utils.load_conf(CJDROUTE_CONF, CJDROUTE_BIN)
     c = cj.connect('127.0.0.1', 11234, conf['admin']['password'])
-    resp = c.UDPInterface_beginConnection(address=addr,
-                                          publicKey=pk,
-                                          password=password)
-    utils.raise_on_error(resp)
+
+    path = os.path.join(YRD_OUTBOUND, name)
+    source = source or path
+
+    out = not live and open(path, 'w')
+    source = sys.stdin if source == '-' else open(source)
+    for auth in source:
+        auth = auth.strip()
+
+        if not auth:
+            continue
+
+        if out:
+            print(auth, file=out)
+
+        for addr, args in json.loads('{' + auth + '}').items():
+            addr = utils.dns_resolve(addr)
+            resp = c.UDPInterface_beginConnection(address=addr,
+                                                  publicKey=args['publicKey'],
+                                                  password=args['password'],
+                                                  interfaceNumber=0)
+            utils.raise_on_error(resp)
     c.disconnect()
 
 
@@ -113,17 +102,17 @@ def ls():
 
 
 @wrap_errors([IOError])
-def remove(user):
+def rm(user):
     'unpeer a node'
     if '/' in user:
         yield 'nope'
         exit(1)
 
-    path = os.path.join(YRD_PEERS, user)
-    if os.path.exists(path):
-        os.unlink(path)
-    else:
-        yield 'user not found'
+    for path in [YRD_INBOUND, YRD_OUTBOUND]:
+        path = os.path.join(path, user)
+        if os.path.exists(path):
+            os.unlink(path)
+            yield 'deleted %r' % path
 
     conf = utils.load_conf(CJDROUTE_CONF, CJDROUTE_BIN)
     c = cjdns.connect(password=conf['admin']['password'])
@@ -131,4 +120,4 @@ def remove(user):
     c.disconnect()
 
 
-cmd = [auth, add, ls, remove]
+cmd = [auth, add, ls, rm]
