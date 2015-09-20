@@ -1,4 +1,4 @@
-from argh import arg, wrap_errors
+from .arg import arg, wrap_errors
 from . import xcjdns as cjdns
 from . import cjdns as cj
 from . import utils

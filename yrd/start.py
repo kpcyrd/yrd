@@ -1,4 +1,4 @@
-from argh import arg, wrap_errors
+from .arg import arg, wrap_errors
 from subprocess import Popen, PIPE
 from .const import YRD_PEERS, CJDROUTE_CONF, CJDROUTE_BIN
 import json

@@ -1,4 +1,4 @@
-from argh import ArghParser, dispatch
+from .arg import ArghParser, dispatch
 from . import start
 from . import core
 from . import peer

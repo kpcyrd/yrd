@@ -1,4 +1,4 @@
-from argh import arg, wrap_errors, named
+from .arg import arg, wrap_errors, named
 from . import utils
 try:
     from urlparse import urlparse, parse_qs

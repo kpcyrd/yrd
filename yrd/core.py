@@ -1,4 +1,4 @@
-from argh import arg, wrap_errors, aliases
+from .arg import arg, wrap_errors, aliases
 from .const import YRD_PEERS, CJDROUTE_CONF, CJDROUTE_BIN
 from . import xcjdns as cjdns
 from . import cjdns as cj
