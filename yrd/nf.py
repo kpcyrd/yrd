@@ -45,7 +45,7 @@ def get(desired, *trackers):
 
 
 @arg('desired', type=int)
-@wrap_errors([PermissionError])
+@wrap_errors([IOError])
 def auto(desired, *trackers):
     'connect to public peers'
     for auth in get(desired, *trackers):
