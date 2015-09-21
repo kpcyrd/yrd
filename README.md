@@ -10,7 +10,7 @@ If you're running arch:
 
 ```sh
 yaourt -S yrd
-systemctl enable yrd
+systemctl enable yrd --now
 ```
 
 If you're running debian/ubuntu:
@@ -24,8 +24,7 @@ apt-get install python-argh python-requests
 ./setup.py -v install
 # install the service
 cp init/yrd.service /etc/systemd/system/
-systemctl enable yrd
-systemctl start yrd
+systemctl enable yrd --now
 ```
 
 Sample Output
