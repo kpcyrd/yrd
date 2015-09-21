@@ -92,7 +92,7 @@ def add(name, source, live=False):
 
     for auth in resolve(source, path):
         if out:
-            print(auth, file=out)
+            out.write("%s\n" % auth)
 
         for addr, args in json.loads('{' + auth + '}').items():
             addr = utils.dns_resolve(addr)
