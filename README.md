@@ -3,6 +3,13 @@ yrd
 
 cjdns swiss army knife
 
+```sh
+yrd n # show peers
+yrd r # show routing table
+yrd peer add mypeer - # read peering string from stdin,
+                      # add to running cjdroute and store as future peer
+```
+
 How to install cjdns with yrd
 -----------------------------
 
@@ -24,7 +31,8 @@ apt-get install python-argh python-requests
 ./setup.py -v install
 # install the service
 cp init/yrd.service /etc/systemd/system/
-systemctl enable yrd --now
+systemctl enable yrd
+systemctl start yrd
 ```
 
 Sample Output
