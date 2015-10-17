@@ -194,3 +194,26 @@ def addr2ip(addr):
 
 
 pk2ipv6 = cjdns.PublicToIp6
+
+
+def collect_from_address(addr):
+    parts = len(addr.split('.'))
+
+    addrs = {}
+
+    if parts == 7:
+        addrs['path'] = addr
+        addrs['key'] = addr[24:]
+        addrs['ip'] = pk2ipv6(addrs['key'])
+
+    elif parts == 2:
+        addrs['key'] = addr
+        addrs['ip'] = pk2ipv6(addrs['key'])
+
+    elif parts == 1:
+        addrs['ip'] = addr
+
+    else:
+        raise ValueError('weird input')
+
+    return addrs

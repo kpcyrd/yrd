@@ -9,21 +9,40 @@ import time
 import os
 
 
-@arg('-i', '--ip', help='format as ipv6')
+@arg('-i', '--ip', help='show as ipv6')
+@arg('-k', '--key', help='show as key')
+@arg('-p', '--path', help='show as path')
+@arg('addr', nargs='?', help='address to convert')
 @aliases('a')
-@wrap_errors([socket.error, IOError])
-def addr(ip=False):
-    'show address of cjdroute'
-    c = cjdns.connect()
+@wrap_errors([socket.error, IOError, ValueError])
+def address(addr, ip=False, key=False, path=False):
+    'show cjdroute addresses'
 
-    res = c.nodeForAddr()['result']
-    if ip:
-        yield res['bestParent']['ip']
+    if addr:
+        addrs = cjdns.collect_from_address(addr)
+
+        try:
+            if path:
+                addr = addrs['path']
+
+            if key:
+                addr = addrs['key']
+
+            if ip:
+                addr = addrs['ip']
+        except KeyError:
+            raise ValueError('not enough info')
+
+        return addr
     else:
-        # TODO: add 'addr' to nodeForAddr
-        yield 'v%s.%s.%s' % (res['protocolVersion'], res['routeLabel'], res['key'])
+        c = cjdns.connect()
 
-    c.disconnect()
+        res = c.nodeForAddr()['result']
+        # TODO: add 'addr' to nodeForAddr
+        my_path = 'v%s.%s.%s' % (res['protocolVersion'], res['routeLabel'], res['key'])
+
+        c.disconnect()
+        return address(my_path, ip=ip, key=key, path=path)
 
 
 @arg('ip', help='the cjdns ipv6')
@@ -250,4 +269,4 @@ def whois(ip, hub=False):
         yield line
 
 
-cmd = [addr, neighbours, ping, top, mon, route, uplinks, whois]
+cmd = [address, neighbours, ping, top, mon, route, uplinks, whois]
