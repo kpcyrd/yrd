@@ -84,7 +84,7 @@ def speed(b):
     return '%d %s/s' % (b, unit)
 
 
-def nodeinfo(ip, hub=False):
+def nodeinfo(ip, hub=False, timeout=20):
     import requests
 
     if hub:
@@ -94,7 +94,7 @@ def nodeinfo(ip, hub=False):
         url = 'http://[%s]/nodeinfo.json' % ip
         title = 'nodeinfo.json'
 
-    j = requests.get(url).json
+    j = requests.get(url, timeout=timeout).json
     if not type(j) is dict:
         j = j()
     return j, title
