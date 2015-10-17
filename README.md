@@ -17,7 +17,8 @@ If you're running arch:
 
 ```sh
 yaourt -S yrd
-systemctl enable yrd --now
+systemctl enable yrd
+systemctl start yrd
 ```
 
 If you're running debian/ubuntu:
