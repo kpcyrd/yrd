@@ -84,7 +84,7 @@ def speed(b):
     return '%d %s/s' % (b, unit)
 
 
-def get_nodeinfo(ip, hub=False):
+def nodeinfo(ip, hub=False):
     import requests
 
     if hub:

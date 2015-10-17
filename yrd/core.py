@@ -223,28 +223,31 @@ def uplinks(addr, ip=False):
 @wrap_errors([socket.error, KeyboardInterrupt])
 def whois(ip, hub=False):
     'asks the remote server for whois information'
+
     try:
-        j, title = utils.nodeinfo(ip, hub)
-    except:
-        yield 'couldn\'t get node info'
-    else:
-        def show(path, x):
-            if type(x) is dict:
-                for a, b in x.items():
-                    for line in show('%s/%s' % (path, a), b):
-                        yield line
-            elif type(x) is list:
-                for a, b in enumerate(x):
-                    for line in show('%s/%s' % (path, a), b):
-                        yield line
-            else:
-                yield '%-40s: %s' % (path, x)
+        ip = cjdns.pk2ipv6(ip)
+    except ValueError:
+        pass  # already ip address
 
-        yield '%% %s %s whois information' % (ip, title)
-        yield '%'
+    j, title = utils.nodeinfo(ip, hub)
 
-        for line in show('', j):
-            yield line
+    def show(path, x):
+        if type(x) is dict:
+            for a, b in x.items():
+                for line in show('%s/%s' % (path, a), b):
+                    yield line
+        elif type(x) is list:
+            for a, b in enumerate(x):
+                for line in show('%s/%s' % (path, a), b):
+                    yield line
+        else:
+            yield '%-40s: %s' % (path, x)
+
+    yield '%% %s %s whois information' % (ip, title)
+    yield '%'
+
+    for line in show('', j):
+        yield line
 
 
 cmd = [addr, neighbours, ping, top, mon, route, uplinks, whois]
