@@ -66,7 +66,10 @@ def load_conf(conf, bin):
 
         p = Popen([bin, '--cleanconf'], stdin=PIPE, stdout=PIPE)
         conf = p.communicate(conf)[0]
-        conf = str(conf, 'ascii')
+        try:
+            conf = str(conf, 'ascii')
+        except:
+            pass
         return json.loads(conf)
     except ValueError:
         raise Exception('failed to load cjdroute.conf as json')
