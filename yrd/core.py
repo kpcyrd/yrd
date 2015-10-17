@@ -9,17 +9,18 @@ import time
 import os
 
 
+@arg('-n', '--nodns', help='no dns lookups')
 @arg('-i', '--ip', help='show as ipv6')
 @arg('-k', '--key', help='show as key')
 @arg('-p', '--path', help='show as path')
 @arg('addr', nargs='?', help='address to convert')
 @aliases('a')
 @wrap_errors([socket.error, IOError, ValueError])
-def address(addr, ip=False, key=False, path=False):
+def address(addr, nodns=False, ip=False, key=False, path=False):
     'show cjdroute addresses'
 
     if addr:
-        addrs = cjdns.collect_from_address(addr)
+        addrs = cjdns.collect_from_address(addr, nodns=nodns)
 
         try:
             if path:

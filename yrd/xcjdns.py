@@ -196,7 +196,12 @@ def addr2ip(addr):
 pk2ipv6 = cjdns.PublicToIp6
 
 
-def collect_from_address(addr):
+def collect_from_address(addr, nodns=False):
+    if not nodns:
+        if addr[:-2] != '.k' and not ':' in addr:
+            addr = socket.getaddrinfo(addr, None, socket.AF_INET6)
+            addr = addr[0][4][0]
+
     addrs = {}
     parts = len(addr.split('.'))
 
