@@ -208,6 +208,14 @@ def mon(level=None, file=None, line=0):
         raise
 
 
+def sessions():
+    conf = utils.load_conf(CJDROUTE_CONF, CJDROUTE_BIN)
+    c = cjdns.connect(password=conf['admin']['password'])
+
+    for session in c.sessionStats():
+        yield '{addr} {state} {handle} {sendHandle}'.format(**session)
+
+
 @arg('-i', '--ip', help='format as ipv6')
 @wrap_errors([IOError])
 def uplinks(addr, ip=False):
@@ -269,4 +277,5 @@ def whois(ip, hub=False):
         yield line
 
 
-cmd = [address, neighbours, ping, top, mon, route, uplinks, whois]
+cmd = [address, neighbours, ping, top, mon, route,
+       sessions, uplinks, whois]

@@ -79,6 +79,14 @@ class Cjdroute(object):
             for route in page['routingTable']:
                 yield route
 
+    def sessionStats(self):
+        for page in self.poll(q='SessionManager_getHandles'):
+            for handle in page['handles']:
+                self.send(q='SessionManager_sessionStats', args={
+                    'handle': handle
+                })
+                yield self.recv()
+
     def genericPing(self, q, path, timeout=5000):
         self.send(q=q, args={'path': path, 'timeout': timeout})
         return self.recv()
