@@ -217,12 +217,10 @@ def collect_from_address(addr):
     else:
         raise ValueError('weird input')
 
-
-    if 'path' in addrs and not 'key' in addrs:
+    if 'path' in addrs and 'key' not in addrs:
         addrs['key'] = addrs['path'][24:]
 
-    if 'key' in addrs and not 'ip' in addrs:
+    if 'key' in addrs and 'ip' not in addrs:
         addrs['ip'] = pk2ipv6(addrs['key'])
-
 
     return addrs

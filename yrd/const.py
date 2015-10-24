@@ -2,8 +2,10 @@ import os
 
 YRD_FOLDER = os.environ.get('YRD_FOLDER', '/etc/yrd')
 
+
 def yrd(path):
     return os.path.join(YRD_FOLDER, path)
+
 
 YRD_INBOUND = yrd('inbound.d/')
 YRD_OUTBOUND = yrd('outbound.d/')

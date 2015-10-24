@@ -16,18 +16,15 @@ def start(attach=False, boot=False):
         conf = utils.load_conf(CJDROUTE_CONF, CJDROUTE_BIN)
         p.communicate(json.dumps(conf))
 
-
     from .peer import add
     for peer in os.listdir(YRD_OUTBOUND):
         yield '[*] connecting to %r' % peer
         list(add(peer, None, live=True))
 
-
     from .peer import auth
     for peer in os.listdir(YRD_INBOUND):
         yield '[*] adding %r' % peer
         list(auth(peer, None, silent=True, live=True))
-
 
     if boot:
         bootstrap()
