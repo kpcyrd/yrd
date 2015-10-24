@@ -44,6 +44,9 @@ class Cjdroute(object):
             kwargs['q'] = 'auth'
             kwargs['hash'] = sha256(bencode(kwargs).encode('ascii')).hexdigest()
 
+        if os.getenv('YRD_DEBUG'):
+            print(repr(kwargs))  # DEBUG SWITCH
+
         self._send(**kwargs)
 
     def poll(self, **kwargs):
