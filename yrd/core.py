@@ -217,6 +217,20 @@ def sessions():
         yield '{addr} {state} {handle} {sendHandle}'.format(**session)
 
 
+@arg('-c', '--count')
+@wrap_errors([socket.error, IOError])
+def search(addr, count=-1):
+    conf = utils.load_conf(CJDROUTE_CONF, CJDROUTE_BIN)
+    c = cjdns.connect('127.0.0.1', 11234, conf['admin']['password'])
+
+    count = -1
+    for x in c.search(addr, count):
+        x['num'] = len(x['nodes'])
+        yield '{from} {ms}ms {num} results'.format(**x)
+        for y in x['nodes']:
+            yield '    %s' % y
+
+
 @arg('-i', '--ip', help='format as ipv6')
 @wrap_errors([IOError])
 def uplinks(addr, ip=False):
@@ -279,4 +293,4 @@ def whois(ip, hub=False):
 
 
 cmd = [address, neighbours, ping, top, mon, route,
-       sessions, uplinks, whois]
+       sessions, search, uplinks, whois]

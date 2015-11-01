@@ -90,6 +90,16 @@ class Cjdroute(object):
                 })
                 yield self.recv()
 
+    def search(self, addr, count=-1):
+        self.send(q='SearchRunner_search',
+                  args={'ipv6': addr, 'maxRequests': count})
+
+        while True:
+            x = self.recv()
+            if 'complete' in x:
+                break
+            yield x
+
     def genericPing(self, q, path, timeout=5000):
         self.send(q=q, args={'path': path, 'timeout': timeout})
         return self.recv()
