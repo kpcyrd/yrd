@@ -208,6 +208,7 @@ def mon(level=None, file=None, line=0):
         raise
 
 
+@wrap_errors([socket.error, IOError])
 def sessions():
     conf = utils.load_conf(CJDROUTE_CONF, CJDROUTE_BIN)
     c = cjdns.connect(password=conf['admin']['password'])
