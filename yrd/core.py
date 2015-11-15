@@ -210,6 +210,7 @@ def mon(level=None, file=None, line=0):
 
 @wrap_errors([socket.error, IOError])
 def sessions():
+    'show established sessions'
     conf = utils.load_conf(CJDROUTE_CONF, CJDROUTE_BIN)
     c = cjdns.connect(password=conf['admin']['password'])
 
@@ -220,6 +221,7 @@ def sessions():
 @arg('-c', '--count')
 @wrap_errors([socket.error, IOError])
 def search(addr, count=-1):
+    'search dht for node'
     conf = utils.load_conf(CJDROUTE_CONF, CJDROUTE_BIN)
     c = cjdns.connect('127.0.0.1', 11234, conf['admin']['password'])
 
