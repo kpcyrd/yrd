@@ -177,8 +177,9 @@ def top(n=25, routing=False):
 @arg('-l', '--level', help='filter by log level')
 @arg('-f', '--file', help='filter by source file')
 @arg('-n', '--line', help='filter by line number')
-@wrap_errors([KeyboardInterrupt])
-def mon(level=None, file=None, line=0):
+@arg('-@', dest='about', metavar='pub.k', help='logs related to node')
+@wrap_errors([KeyboardInterrupt, IOError])
+def mon(level=None, file=None, line=0, about=None):
     'monitor cjdroute'
 
     conf = utils.load_conf(CJDROUTE_CONF, CJDROUTE_BIN)
@@ -198,11 +199,19 @@ def mon(level=None, file=None, line=0):
     resp = c.AdminLog_subscribe(**kwargs)
     streamId = resp['streamId']
 
+    if about:
+        key = address(about, key=True)
+        ip = address(about, ip=True)
+        topic = [key, key[:-2], ip]
+    else:
+        topic = []
+
     try:
         while True:
-            x = c.getMessage(resp['txid'])
-            x['ftime'] = utils.ts2time(x['time'])
-            yield '{ftime} {level} {file}:{line} {message}'.format(**x)
+            msg = c.getMessage(resp['txid'])
+            msg['ftime'] = utils.ts2time(msg['time'])
+            if not topic or any([x in msg['message'] for x in topic]):
+                yield '{ftime} {level} {file}:{line} {message}'.format(**msg)
     except:
         c.AdminLog_unsubscribe(streamId)
         raise
