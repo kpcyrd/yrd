@@ -2,6 +2,7 @@ from subprocess import Popen, PIPE
 from datetime import datetime
 import socket
 import json
+import os
 
 
 def ts2time(ts):
@@ -73,6 +74,14 @@ def load_conf(conf, bin):
         return json.loads(conf)
     except ValueError:
         raise Exception('failed to load cjdroute.conf as json')
+
+
+def load_admin_pw(conf, bin):
+    try:
+        return os.environ['CJDNS_ADMIN_PW']
+    except KeyError:
+        conf = load_conf(conf, bin)
+        return conf['admin']['password']
 
 
 def speed(b):

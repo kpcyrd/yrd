@@ -51,8 +51,8 @@ def address(addr, ip=False, key=False, path=False):
 @wrap_errors([KeyboardInterrupt, socket.error, IOError])
 def ping(ip, count=0, switch=False):
     'ping a node'
-    conf = utils.load_conf(CJDROUTE_CONF, CJDROUTE_BIN)
-    c = cjdns.connect(password=conf['admin']['password'])
+    admin_pw = utils.load_admin_pw(CJDROUTE_CONF, CJDROUTE_BIN)
+    c = cjdns.connect(password=admin_pw)
 
     ping = c.switchPing if switch else c.routerPing
 
@@ -182,8 +182,8 @@ def top(n=25, routing=False):
 def mon(level=None, file=None, line=0, about=None):
     'monitor cjdroute'
 
-    conf = utils.load_conf(CJDROUTE_CONF, CJDROUTE_BIN)
-    c = cj.connect('127.0.0.1', 11234, conf['admin']['password'])
+    admin_pw = utils.load_admin_pw(CJDROUTE_CONF, CJDROUTE_BIN)
+    c = cj.connect('127.0.0.1', 11234, admin_pw)
 
     kwargs = {}
 
@@ -220,8 +220,8 @@ def mon(level=None, file=None, line=0, about=None):
 @wrap_errors([socket.error, IOError])
 def sessions():
     'show established sessions'
-    conf = utils.load_conf(CJDROUTE_CONF, CJDROUTE_BIN)
-    c = cjdns.connect(password=conf['admin']['password'])
+    admin_pw = utils.load_admin_pw(CJDROUTE_CONF, CJDROUTE_BIN)
+    c = cj.connect('127.0.0.1', 11234, admin_pw)
 
     for session in c.sessionStats():
         yield '{addr} {state} {handle} {sendHandle}'.format(**session)
@@ -231,8 +231,8 @@ def sessions():
 @wrap_errors([socket.error, IOError])
 def search(addr, count=-1):
     'search dht for node'
-    conf = utils.load_conf(CJDROUTE_CONF, CJDROUTE_BIN)
-    c = cjdns.connect('127.0.0.1', 11234, conf['admin']['password'])
+    admin_pw = utils.load_admin_pw(CJDROUTE_CONF, CJDROUTE_BIN)
+    c = cj.connect('127.0.0.1', 11234, admin_pw)
 
     count = -1
     for x in c.search(addr, count):
@@ -246,8 +246,8 @@ def search(addr, count=-1):
 @wrap_errors([IOError])
 def uplinks(addr, ip=False):
     'show uplinks of a node'
-    conf = utils.load_conf(CJDROUTE_CONF, CJDROUTE_BIN)
-    c = cjdns.connect(password=conf['admin']['password'])
+    admin_pw = utils.load_admin_pw(CJDROUTE_CONF, CJDROUTE_BIN)
+    c = cj.connect('127.0.0.1', 11234, admin_pw)
 
     result = c.nodeForAddr(addr)['result']
 

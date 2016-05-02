@@ -84,8 +84,8 @@ def add(name, source, live=False):
         yield 'nope'
         exit(1)
 
-    conf = utils.load_conf(CJDROUTE_CONF, CJDROUTE_BIN)
-    c = cj.connect('127.0.0.1', 11234, conf['admin']['password'])
+    admin_pw = utils.load_admin_pw(CJDROUTE_CONF, CJDROUTE_BIN)
+    c = cj.connect('127.0.0.1', 11234, admin_pw)
 
     path = os.path.join(YRD_OUTBOUND, name)
     out = not live and open(path, 'w')
@@ -107,8 +107,8 @@ def add(name, source, live=False):
 @wrap_errors([IOError])
 def ls():
     'list passwords for inbound connections'
-    conf = utils.load_conf(CJDROUTE_CONF, CJDROUTE_BIN)
-    c = cjdns.connect(password=conf['admin']['password'])
+    admin_pw = utils.load_admin_pw(CJDROUTE_CONF, CJDROUTE_BIN)
+    c = cj.connect('127.0.0.1', 11234, admin_pw)
     for user in c.listPasswords()['users']:
         yield user
     c.disconnect()
@@ -127,8 +127,8 @@ def rm(user):
             os.unlink(path)
             yield 'deleted %r' % path
 
-    conf = utils.load_conf(CJDROUTE_CONF, CJDROUTE_BIN)
-    c = cjdns.connect(password=conf['admin']['password'])
+    admin_pw = utils.load_admin_pw(CJDROUTE_CONF, CJDROUTE_BIN)
+    c = cj.connect('127.0.0.1', 11234, admin_pw)
     try:
         c.removePassword(user)
     except:
