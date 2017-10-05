@@ -56,7 +56,7 @@ def ping(ip, count=0, switch=False):
 
     ping = c.switchPing if switch else c.routerPing
 
-    for _ in xrange(count) if count else itertools.repeat(None):
+    for _ in range(count) if count else itertools.repeat(None):
         try:
             resp = ping(ip)
         except Exception as e:
