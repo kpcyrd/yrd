@@ -123,9 +123,10 @@ How to pronounce this
 
 Like "wired"
 
-"Thanks" goes to
+Thanks goes to
 ----------------
 
+- anthraxx - for heavily contributing bug fixes
 - appa - found some bugs and rough edges
 - prurigro - testing and building aur packages
 
