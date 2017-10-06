@@ -12,7 +12,10 @@ parser.add_commands(nf.cmd, namespace='nf', title='ctrl inet auto-peering')
 
 
 def main():
-    dispatch(parser)
+    try:
+        dispatch(parser)
+    except KeyboardInterrupt as e:
+        pass
 
 
 if __name__ == '__main__':
