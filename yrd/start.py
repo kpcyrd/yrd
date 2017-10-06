@@ -33,9 +33,9 @@ def start(attach=False, boot=False):
 
 def bootstrap():
     'bootstraps network access'
-    import bootstrap as boot
+    from . import bootstrap
     from . import nf
-    nf.peer(boot.DESIRED, [x + boot.TOPIC + '/seek/' for x in bootstrap.trackers])
+    nf.request_peers(bootstrap.DESIRED, [x + bootstrap.TOPIC + '/seek/' for x in bootstrap.TRACKERS])
 
 
 cmd = [start, bootstrap]
