@@ -116,7 +116,7 @@ def neighbours(ip=False, neighbours=False):
     c = cjdns.connect()
 
     if ip:
-        STAT_FORMAT = '%s %19s  v%-2d  in %4dkb/s out %4dkb/s  %12s  %d/%d/%d  '
+        STAT_FORMAT = '%s %19s  v%-2s  in %4dkb/s out %4dkb/s  %12s  %d/%d/%d  '
         nodestore = list(c.dumpTable())
     else:
         STAT_FORMAT = '%s  in %4dkb/s out %4dkb/s  %12s  %d/%d/%d  '
