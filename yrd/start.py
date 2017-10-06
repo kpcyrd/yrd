@@ -13,7 +13,7 @@ def start(attach=False, boot=False):
     'start and/or configure cjdroute'
 
     if not attach:
-        p = Popen(['cjdroute'], stdin=PIPE)
+        p = Popen(['cjdroute'], stdin=PIPE, encoding='UTF-8')
         conf = utils.load_conf(CJDROUTE_CONF, CJDROUTE_BIN)
         p.communicate(json.dumps(conf))
 
