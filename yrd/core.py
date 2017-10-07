@@ -272,36 +272,5 @@ def uplinks(addr, ip=False):
     c.disconnect()
 
 
-@arg('-b', '--hub', help='query hub.hyperboria.net')
-@wrap_errors([socket.error, KeyboardInterrupt])
-def whois(ip, hub=False):
-    'asks the remote server for whois information'
-
-    try:
-        ip = cjdns.pk2ipv6(ip)
-    except ValueError:
-        pass  # already ip address
-
-    j, title = utils.nodeinfo(ip, hub)
-
-    def show(path, x):
-        if type(x) is dict:
-            for a, b in x.items():
-                for line in show('%s/%s' % (path, a), b):
-                    yield line
-        elif type(x) is list:
-            for a, b in enumerate(x):
-                for line in show('%s/%s' % (path, a), b):
-                    yield line
-        else:
-            yield '%-40s: %s' % (path, x)
-
-    yield '%% %s %s whois information' % (ip, title)
-    yield '%'
-
-    for line in show('', j):
-        yield line
-
-
 cmd = [address, neighbours, ping, top, mon, route,
-       sessions, search, uplinks, whois]
+       sessions, search, uplinks]

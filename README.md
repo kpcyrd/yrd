@@ -97,21 +97,6 @@ fc4b:2571:aa1a:d4d1:67d6:2d57:c2d2:a329   0000.0000.0000.1935  v13
 -
 ```
 
-### Whois lookup
-Asks the remote server for whois information.
-
-This is done by requesting `http://$ip/nodeinfo.json` from the remote server.
-
-```
-$ yrd whois fcec:ae97:8902:d810:6c92:ec67:efb2:3ec5
-% fcec:ae97:8902:d810:6c92:ec67:efb2:3ec5 nodeinfo.json whois information
-%
-/ip                                     : fcec:ae97:8902:d810:6c92:ec67:efb2:3ec5
-/hostname                               : abkco.appno.de
-/contact/socialnode                     : derp
-[...]
-```
-
 How to pronounce this
 ---------------------
 
