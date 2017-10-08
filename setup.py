@@ -11,7 +11,7 @@ setup(
     packages=['yrd', 'yrd.cjdns'],
     entry_points={
         'console_scripts': [
-            'yrd = yrd.yrd:main'
+            'yrd = yrd:main'
         ]
     }
 )
