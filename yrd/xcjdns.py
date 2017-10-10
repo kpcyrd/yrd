@@ -211,7 +211,7 @@ def Base32_decode(input):
 
 
 def addr2ip(addr):
-    return pk2ipv6(addr[24:])
+    return pk2ipv6(addr.split('.', 5)[-1])
 
 
 pk2ipv6 = cjdns.PublicToIp6
