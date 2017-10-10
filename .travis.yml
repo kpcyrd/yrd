@@ -1,0 +1,5 @@
+language: python
+install:
+- docker build -t yrd-test -f ci/Dockerfile .
+script:
+- docker run yrd-test
