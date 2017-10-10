@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name='yrd',
-    version='0.5.0',
+    version='0.5.2',
     description='cjdns for humans and cyborgs',
     author='kpcyrd',
     author_email='git at rxv.cc',

@@ -211,7 +211,7 @@ def Base32_decode(input):
 
 
 def addr2ip(addr):
-    return pk2ipv6(addr[24:])
+    return pk2ipv6(addr.split('.', 5)[-1])
 
 
 pk2ipv6 = cjdns.PublicToIp6
@@ -231,7 +231,7 @@ def collect_from_address(addr):
         raise ValueError('weird input')
 
     if 'path' in addrs and 'key' not in addrs:
-        addrs['key'] = addrs['path'][24:]
+        addrs['key'] = addrs['path'].split('.', 5)[-1]
 
     if 'key' in addrs and 'ip' not in addrs:
         addrs['ip'] = pk2ipv6(addrs['key'])
