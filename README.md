@@ -16,9 +16,8 @@ How to install cjdns with yrd
 If you're running arch:
 
 ```sh
-yaourt -S yrd
-systemctl enable yrd
-systemctl start yrd
+pacman -S yrd
+systemctl enable --now yrd
 ```
 
 If you're running debian/ubuntu:
@@ -27,13 +26,12 @@ If you're running debian/ubuntu:
 git clone https://github.com/kpcyrd/yrd.git
 cd yrd
 # install dependencies
-apt-get install python-argh python-requests
+apt-get install python3-argh python3-requests
 # install yrd
-./setup.py -v install
+python3 ./setup.py -v install
 # install the service
 cp init/yrd.service /etc/systemd/system/
-systemctl enable yrd
-systemctl start yrd
+systemctl enable --now yrd
 ```
 
 Sample Output
