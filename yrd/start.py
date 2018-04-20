@@ -12,9 +12,9 @@ def start(attach=False, boot=False):
     'start and/or configure cjdroute'
 
     if not attach:
-        p = Popen(['cjdroute'], stdin=PIPE, encoding='UTF-8')
+        p = Popen([CJDROUTE_BIN], stdin=PIPE)
         conf = utils.load_conf(CJDROUTE_CONF, CJDROUTE_BIN)
-        p.communicate(json.dumps(conf))
+        p.communicate(json.dumps(conf).encode('utf-8'))
 
     from .peer import add
     for peer in os.listdir(YRD_OUTBOUND):

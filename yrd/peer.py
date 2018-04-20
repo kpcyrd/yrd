@@ -96,9 +96,11 @@ def add(name, source, live=False):
 
         for addr, args in json.loads('{' + auth + '}').items():
             addr = utils.dns_resolve(addr)
+            # TODO: this doesn't detect the proper interfaceNumber yet
             resp = c.UDPInterface_beginConnection(address=addr,
                                                   publicKey=args['publicKey'],
                                                   password=args['password'],
+                                                  peerName=name,
                                                   interfaceNumber=0)
             utils.raise_on_error(resp)
     c.disconnect()
@@ -108,7 +110,7 @@ def add(name, source, live=False):
 def ls():
     'list passwords for inbound connections'
     admin_pw = utils.load_admin_pw(CJDROUTE_CONF, CJDROUTE_BIN)
-    c = cj.connect('127.0.0.1', 11234, admin_pw)
+    c = cjdns.connect('127.0.0.1', 11234, admin_pw)
     for user in c.listPasswords()['users']:
         yield user
     c.disconnect()
