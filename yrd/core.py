@@ -232,7 +232,7 @@ def sessions():
 def search(addr, count=-1):
     'search dht for node'
     admin_pw = utils.load_admin_pw(CJDROUTE_CONF, CJDROUTE_BIN)
-    c = cj.connect('127.0.0.1', 11234, admin_pw)
+    c = cjdns.connect('127.0.0.1', 11234, admin_pw)
 
     count = -1
     for x in c.search(addr, count):
@@ -247,7 +247,7 @@ def search(addr, count=-1):
 def uplinks(addr, ip=False):
     'show uplinks of a node'
     admin_pw = utils.load_admin_pw(CJDROUTE_CONF, CJDROUTE_BIN)
-    c = cj.connect('127.0.0.1', 11234, admin_pw)
+    c = cjdns.connect('127.0.0.1', 11234, admin_pw)
 
     result = c.nodeForAddr(addr)['result']
 
