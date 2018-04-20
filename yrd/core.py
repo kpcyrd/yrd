@@ -221,7 +221,7 @@ def mon(level=None, file=None, line=0, about=None):
 def sessions():
     'show established sessions'
     admin_pw = utils.load_admin_pw(CJDROUTE_CONF, CJDROUTE_BIN)
-    c = cj.connect('127.0.0.1', 11234, admin_pw)
+    c = cjdns.connect('127.0.0.1', 11234, admin_pw)
 
     for session in c.sessionStats():
         yield '{addr} {state} {handle} {sendHandle}'.format(**session)
