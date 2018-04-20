@@ -96,9 +96,11 @@ def add(name, source, live=False):
 
         for addr, args in json.loads('{' + auth + '}').items():
             addr = utils.dns_resolve(addr)
+            # TODO: this doesn't detect the proper interfaceNumber yet
             resp = c.UDPInterface_beginConnection(address=addr,
                                                   publicKey=args['publicKey'],
                                                   password=args['password'],
+                                                  peerName=name,
                                                   interfaceNumber=0)
             utils.raise_on_error(resp)
     c.disconnect()
