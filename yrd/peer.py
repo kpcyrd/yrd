@@ -108,7 +108,7 @@ def add(name, source, live=False):
 def ls():
     'list passwords for inbound connections'
     admin_pw = utils.load_admin_pw(CJDROUTE_CONF, CJDROUTE_BIN)
-    c = cj.connect('127.0.0.1', 11234, admin_pw)
+    c = cjdns.connect('127.0.0.1', 11234, admin_pw)
     for user in c.listPasswords()['users']:
         yield user
     c.disconnect()
